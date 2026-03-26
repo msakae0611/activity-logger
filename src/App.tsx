@@ -3,6 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth } from './features/auth/useAuth'
 import { LoginPage } from './features/auth/LoginPage'
 import { Layout } from './components/ui/Layout'
+import { CategoryListPage } from './features/categories/CategoryListPage'
+import { CategoryEditorPage } from './features/categories/CategoryEditorPage'
 
 const queryClient = new QueryClient()
 
@@ -16,7 +18,9 @@ function AppRoutes() {
         <Route path="/" element={<div>記録画面（実装予定）</div>} />
         <Route path="/logs" element={<div>ログ一覧（実装予定）</div>} />
         <Route path="/analytics" element={<div>分析（実装予定）</div>} />
-        <Route path="/settings" element={<div>設定（実装予定）</div>} />
+        <Route path="/settings" element={<CategoryListPage />} />
+        <Route path="/settings/categories/new" element={<CategoryEditorPage />} />
+        <Route path="/settings/categories/:id" element={<CategoryEditorPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
