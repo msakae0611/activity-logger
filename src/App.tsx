@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAuth } from './features/auth/useAuth'
+import { AuthContext } from './features/auth/AuthContext'
 import { LoginPage } from './features/auth/LoginPage'
 import { Layout } from './components/ui/Layout'
 import { CategoryListPage } from './features/categories/CategoryListPage'
@@ -12,21 +13,23 @@ import { AnalyticsPage } from './features/analytics/AnalyticsPage'
 const queryClient = new QueryClient()
 
 function AppRoutes() {
-  const { user, loading } = useAuth()
-  if (loading) return <div style={{ padding: 24 }}>読み込み中...</div>
-  if (!user) return <LoginPage />
+  const auth = useAuth()
+  if (auth.loading) return <div style={{ padding: 24 }}>読み込み中...</div>
+  if (!auth.user) return <LoginPage />
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<RecordingPage />} />
-        <Route path="/logs" element={<LogsPage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/settings" element={<CategoryListPage />} />
-        <Route path="/settings/categories/new" element={<CategoryEditorPage />} />
-        <Route path="/settings/categories/:id" element={<CategoryEditorPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Layout>
+    <AuthContext.Provider value={auth}>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<RecordingPage />} />
+          <Route path="/logs" element={<LogsPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/settings" element={<CategoryListPage />} />
+          <Route path="/settings/categories/new" element={<CategoryEditorPage />} />
+          <Route path="/settings/categories/:id" element={<CategoryEditorPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Layout>
+    </AuthContext.Provider>
   )
 }
 

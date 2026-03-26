@@ -19,15 +19,13 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      setUser(data.user)
-      if (data.user) await seedLocalDb(data.user.id)
-      setLoading(false)
-    })
-
+    // onAuthStateChange fires INITIAL_SESSION immediately — no getSession() needed
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
-      if (event === 'SIGNED_IN' && session?.user) await seedLocalDb(session.user.id)
+      setLoading(false)
+      if (event === 'SIGNED_IN' && session?.user) {
+        await seedLocalDb(session.user.id).catch(() => {})
+      }
     })
 
     return () => subscription.unsubscribe()

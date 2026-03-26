@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../../lib/db/db'
 import { DynamicForm } from './DynamicForm'
 import { saveRecord } from './useRecording'
-import { useAuth } from '../auth/useAuth'
+import { updateRecord, deleteRecord } from '../logs/useLogsDb'
+import { useAuthContext as useAuth } from '../auth/AuthContext'
+import { toLocalDateTimeString } from '../../lib/utils/dates'
+import { MiniCalendar } from '../logs/MiniCalendar'
 
 const LAST_CATEGORY_KEY = 'lastCategoryId'
 
@@ -16,8 +19,18 @@ export function RecordingPage() {
   const [selectedId, setSelectedId] = useState<string>(() => localStorage.getItem(LAST_CATEGORY_KEY) ?? '')
   const [values, setValues] = useState<Record<string, unknown>>({})
   const [saved, setSaved] = useState(false)
+  const [recordedAt, setRecordedAt] = useState<string>(() => toLocalDateTimeString(new Date()))
+  const [showExisting, setShowExisting] = useState(false)
+  const dateInputRef = useRef<HTMLInputElement>(null)
 
   const selectedCategory = categories?.find(c => c.id === selectedId)
+  const dateKey = recordedAt.slice(0, 10)
+
+  const existingRecord = useLiveQuery(async () => {
+    if (!user || !selectedId) return null
+    const all = await db.records.where('user_id').equals(user.id).toArray()
+    return all.find(r => r.category_id === selectedId && r.recorded_at.slice(0, 10) === dateKey) ?? null
+  }, [user?.id, selectedId, dateKey])
 
   useEffect(() => {
     if (!selectedId && categories?.length) {
@@ -25,13 +38,47 @@ export function RecordingPage() {
     }
   }, [categories, selectedId])
 
+  // Reset form when category or date changes
+  useEffect(() => {
+    setShowExisting(false)
+    setValues({})
+  }, [selectedId, dateKey])
+
+  const handleDateSelect = (date: string) => {
+    const currentTime = recordedAt.slice(11, 16) || '12:00'
+    setRecordedAt(`${date}T${currentTime}`)
+  }
+
   const handleSave = async () => {
     if (!selectedCategory || !user) return
-    await saveRecord({ categoryId: selectedCategory.id, userId: user.id, values })
+    if (existingRecord) {
+      await updateRecord({ ...existingRecord, values, recorded_at: new Date(recordedAt).toISOString() })
+    } else {
+      await saveRecord({ categoryId: selectedCategory.id, userId: user.id, values, recordedAt: new Date(recordedAt).toISOString() })
+    }
     localStorage.setItem(LAST_CATEGORY_KEY, selectedCategory.id)
     setValues({})
+    setShowExisting(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  const handleDelete = async () => {
+    if (!existingRecord) return
+    await deleteRecord(existingRecord.id)
+    setShowExisting(false)
+    setValues({})
+  }
+
+  const handleExistingClick = () => {
+    if (!existingRecord) return
+    if (showExisting) {
+      setShowExisting(false)
+      setValues({})
+    } else {
+      setShowExisting(true)
+      setValues({ ...existingRecord.values })
+    }
   }
 
   if (!categories?.length) {
@@ -46,6 +93,8 @@ export function RecordingPage() {
   return (
     <div style={{ padding: 16 }}>
       <h2>記録</h2>
+
+      {/* Category selector */}
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 16, paddingBottom: 4 }}>
         {categories?.map(cat => (
           <button key={cat.id} onClick={() => { setSelectedId(cat.id); setValues({}) }}
@@ -59,12 +108,76 @@ export function RecordingPage() {
         ))}
       </div>
 
+      {/* Mini calendar */}
+      {user && (
+        <div style={{ marginBottom: 16 }}>
+          <MiniCalendar
+            userId={user.id}
+            selectedDate={dateKey}
+            onDateSelect={handleDateSelect}
+          />
+        </div>
+      )}
+
       {selectedCategory && (
         <>
-          <DynamicForm fields={selectedCategory.fields} values={values} onChange={setValues} />
-          <button onClick={handleSave} style={{ width: '100%', padding: 14, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 16, marginTop: 8 }}>
-            {saved ? '✓ 記録しました！' : '💾 記録する'}
-          </button>
+          {/* Date/time picker + existing record button */}
+          <div style={{ marginBottom: 8 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 4 }}>記録日時</label>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {/* Left: datetime display */}
+              <div style={{ display: 'flex', alignItems: 'center', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b', fontSize: 14, whiteSpace: 'nowrap' }}>
+                <span>{recordedAt.replace('T', ' ')}</span>
+                <span onClick={() => dateInputRef.current?.showPicker()} style={{ cursor: 'pointer', fontSize: 18, lineHeight: 1, marginLeft: 8 }}>📅</span>
+                <input
+                  ref={dateInputRef}
+                  type="datetime-local"
+                  value={recordedAt}
+                  onChange={e => setRecordedAt(e.target.value)}
+                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setRecordedAt(toLocalDateTimeString(new Date()))}
+                style={{ padding: '8px 12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap' }}
+              >今</button>
+              {/* Right: existing record button or spacer */}
+              {existingRecord ? (
+                <button
+                  onClick={handleExistingClick}
+                  style={{
+                    marginLeft: 'auto', padding: '8px 12px', whiteSpace: 'nowrap',
+                    background: showExisting ? '#6366f1' : '#ede9fe',
+                    color: showExisting ? '#fff' : '#4f46e5',
+                    border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                  }}
+                >
+                  {showExisting ? '▲ 閉じる' : `✓ ${selectedCategory?.name}：${dateKey.replace(/-/g, '/')}`}
+                </button>
+              ) : (
+                <div style={{ marginLeft: 'auto' }} />
+              )}
+            </div>
+          </div>
+
+          {/* Form: show when no existing record, or when user expanded existing */}
+          {(!existingRecord || showExisting) && (
+            <>
+              <DynamicForm fields={selectedCategory.fields} values={values} onChange={setValues} />
+              {showExisting && (
+                <button
+                  onClick={handleDelete}
+                  style={{ width: '100%', padding: '10px', marginTop: 8, background: '#fff', color: '#1e293b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+                >
+                  削除
+                </button>
+              )}
+              <button onClick={handleSave} style={{ width: '100%', padding: 14, background: existingRecord ? '#ec4899' : '#6366f1', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 16, marginTop: 8 }}>
+                {saved ? '✓ 保存しました！' : existingRecord ? '💾 上書き保存' : '💾 記録する'}
+              </button>
+            </>
+          )}
         </>
       )}
     </div>

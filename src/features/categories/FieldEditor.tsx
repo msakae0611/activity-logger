@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import type { FieldDefinition, FieldType } from '../../types'
 
 const FIELD_TYPES: { value: FieldType; label: string }[] = [
@@ -18,6 +19,18 @@ interface FieldEditorProps {
 }
 
 export function FieldEditor({ field, onChange, onRemove }: FieldEditorProps) {
+  const [optionsText, setOptionsText] = useState((field.options ?? []).join('\n'))
+
+  useEffect(() => {
+    setOptionsText((field.options ?? []).join('\n'))
+  }, [field.key])
+
+  const handleOptionsChange = (text: string) => {
+    setOptionsText(text)
+    const options = text.split('\n').map(s => s.trim()).filter(Boolean)
+    onChange({ ...field, options })
+  }
+
   return (
     <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, marginBottom: 8 }}>
       <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
@@ -45,12 +58,16 @@ export function FieldEditor({ field, onChange, onRemove }: FieldEditorProps) {
         />
       )}
       {(field.type === 'select' || field.type === 'multi-select') && (
-        <input
-          placeholder="選択肢をカンマ区切りで入力 (例: 良い,普通,悪い)"
-          value={(field.options ?? []).join(',')}
-          onChange={e => onChange({ ...field, options: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-          style={{ width: '100%', padding: 6, border: '1px solid #e2e8f0', borderRadius: 4 }}
-        />
+        <div>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>選択肢（1行に1つ入力）</div>
+          <textarea
+            placeholder={'良い\n普通\n悪い'}
+            value={optionsText}
+            onChange={e => handleOptionsChange(e.target.value)}
+            rows={4}
+            style={{ width: '100%', padding: 6, border: '1px solid #e2e8f0', borderRadius: 4, resize: 'vertical', boxSizing: 'border-box' }}
+          />
+        </div>
       )}
       <label style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, fontSize: 13 }}>
         <input

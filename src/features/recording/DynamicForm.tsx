@@ -21,16 +21,16 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
           </div>
 
           {field.type === 'number' && (
-            <input id={field.key} type="number" value={(values[field.key] as number) ?? ''} onChange={e => update(field.key, e.target.valueAsNumber)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4 }} />
+            <input id={field.key} type="number" value={(values[field.key] as number) ?? ''} onChange={e => update(field.key, e.target.valueAsNumber)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }} />
           )}
           {field.type === 'text' && (
-            <input id={field.key} type="text" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4 }} />
+            <input id={field.key} type="text" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }} />
           )}
           {field.type === 'textarea' && (
-            <textarea id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} rows={3} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, resize: 'vertical' }} />
+            <textarea id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} rows={3} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, resize: 'vertical', background: '#fff', color: '#1e293b' }} />
           )}
           {field.type === 'select' && (
-            <select id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4 }}>
+            <select id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }}>
               <option value="">選択してください</option>
               {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
             </select>
@@ -49,7 +49,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
             </div>
           )}
           {field.type === 'duration' && (
-            <input id={field.key} type="time" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4 }} />
+            <input id={field.key} type="time" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }} />
           )}
           {field.type === 'multi-select' && (
             <div id={field.key} style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -59,7 +59,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                   <button key={opt} type="button" onClick={() => {
                     const current = (values[field.key] as string[]) ?? []
                     update(field.key, selected ? current.filter(x => x !== opt) : [...current, opt])
-                  }} style={{ padding: '4px 12px', borderRadius: 16, border: `1px solid ${selected ? '#6366f1' : '#e2e8f0'}`, background: selected ? '#e0e7ff' : '#fff', cursor: 'pointer' }}>
+                  }} style={{ padding: '4px 12px', borderRadius: 16, border: selected ? '2px solid #fff' : '2px solid #6366f1', background: selected ? '#ec4899' : '#6366f1', color: '#fff', cursor: 'pointer', fontWeight: selected ? 700 : 400, outline: 'none' }}>
                     {opt}
                   </button>
                 )

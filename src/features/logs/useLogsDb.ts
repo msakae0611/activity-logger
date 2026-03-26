@@ -20,6 +20,20 @@ export async function getRecords(opts: GetRecordsOptions): Promise<LogRecord[]> 
     .sort((a, b) => b.recorded_at.localeCompare(a.recorded_at))
 }
 
+export async function updateRecord(record: LogRecord): Promise<void> {
+  const updated = { ...record, updated_at: toISOString(), synced: false }
+  await db.transaction('rw', db.records, db.syncQueue, async () => {
+    await db.records.put(updated)
+    await db.syncQueue.add({
+      id: generateId(),
+      table: 'records',
+      operation: 'update',
+      payload: JSON.stringify(updated),
+      created_at: toISOString(),
+    } as SyncQueueItem)
+  })
+}
+
 export async function deleteRecord(id: string): Promise<void> {
   await db.transaction('rw', db.records, db.syncQueue, async () => {
     await db.records.delete(id)

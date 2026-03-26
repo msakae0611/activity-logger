@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../../lib/db/db'
-import { useAuth } from '../auth/useAuth'
+import { useAuthContext as useAuth } from '../auth/AuthContext'
 import { computeTimeSeries, computeStats } from './useAnalytics'
 import { TimeSeriesChart } from './TimeSeriesChart'
 import { StatsSummary } from './StatsSummary'

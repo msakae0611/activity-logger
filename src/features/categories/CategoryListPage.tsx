@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useNavigate } from 'react-router-dom'
 import { db } from '../../lib/db/db'
 import { deleteCategory } from './useCategoryDb'
-import { useAuth } from '../auth/useAuth'
+import { useAuthContext as useAuth } from '../auth/AuthContext'
 import { signOut } from '../../lib/supabase/auth'
 
 export function CategoryListPage() {
@@ -22,15 +22,15 @@ export function CategoryListPage() {
         </button>
       </div>
       {categories?.map(cat => (
-        <div key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#f8fafc', borderRadius: 8, marginBottom: 8 }}>
-          <span>{cat.icon} {cat.name}</span>
+        <div key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#1e293b', borderRadius: 8, marginBottom: 8, border: '1px solid #334155' }}>
+          <span style={{ color: '#f1f5f9', fontWeight: 500 }}>{cat.icon} {cat.name}</span>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={() => navigate(`/settings/categories/${cat.id}`)} style={{ padding: '4px 10px', background: '#e0e7ff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>編集</button>
-            <button onClick={() => deleteCategory(cat.id)} style={{ padding: '4px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer' }}>削除</button>
+            <button onClick={() => navigate(`/settings/categories/${cat.id}`)} style={{ padding: '6px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>編集</button>
+            <button onClick={() => deleteCategory(cat.id)} style={{ padding: '6px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>削除</button>
           </div>
         </div>
       ))}
-      <button onClick={() => signOut()} style={{ marginTop: 24, width: '100%', padding: 10, background: '#f1f5f9', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
+      <button onClick={() => signOut()} style={{ marginTop: 24, width: '100%', padding: 10, background: '#334155', color: '#f1f5f9', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>
         ログアウト
       </button>
     </div>

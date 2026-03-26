@@ -1,3 +1,8 @@
+export function toLocalDateTimeString(date: Date): string {
+  const offset = date.getTimezoneOffset() * 60000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16)
+}
+
 export function toISOString(date: Date = new Date()): string {
   return date.toISOString()
 }
