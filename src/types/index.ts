@@ -34,7 +34,7 @@ export interface Record {
   category_id: string
   user_id: string
   recorded_at: string       // ISO8601
-  values: Record<string, unknown>
+  values: { [key: string]: unknown }
   synced: boolean           // Dexie.jsのみ
   updated_at: string
 }
