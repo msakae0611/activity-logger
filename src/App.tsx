@@ -5,6 +5,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { Layout } from './components/ui/Layout'
 import { CategoryListPage } from './features/categories/CategoryListPage'
 import { CategoryEditorPage } from './features/categories/CategoryEditorPage'
+import { RecordingPage } from './features/recording/RecordingPage'
 
 const queryClient = new QueryClient()
 
@@ -15,7 +16,7 @@ function AppRoutes() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<div>記録画面（実装予定）</div>} />
+        <Route path="/" element={<RecordingPage />} />
         <Route path="/logs" element={<div>ログ一覧（実装予定）</div>} />
         <Route path="/analytics" element={<div>分析（実装予定）</div>} />
         <Route path="/settings" element={<CategoryListPage />} />
