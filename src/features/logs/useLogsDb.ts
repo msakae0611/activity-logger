@@ -1,5 +1,7 @@
 import { db } from '../../lib/db/db'
-import type { Record as LogRecord } from '../../types'
+import { generateId } from '../../lib/utils/uuid'
+import { toISOString } from '../../lib/utils/dates'
+import type { Record as LogRecord, SyncQueueItem } from '../../types'
 
 interface GetRecordsOptions {
   userId: string
@@ -19,5 +21,14 @@ export async function getRecords(opts: GetRecordsOptions): Promise<LogRecord[]> 
 }
 
 export async function deleteRecord(id: string): Promise<void> {
-  await db.records.delete(id)
+  await db.transaction('rw', db.records, db.syncQueue, async () => {
+    await db.records.delete(id)
+    await db.syncQueue.add({
+      id: generateId(),
+      table: 'records',
+      operation: 'delete',
+      payload: JSON.stringify({ id }),
+      created_at: toISOString(),
+    } as SyncQueueItem)
+  })
 }

@@ -25,9 +25,9 @@ export function useAuth() {
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
-      if (session?.user) await seedLocalDb(session.user.id)
+      if (event === 'SIGNED_IN' && session?.user) await seedLocalDb(session.user.id)
     })
 
     return () => subscription.unsubscribe()

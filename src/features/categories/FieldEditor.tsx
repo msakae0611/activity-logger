@@ -24,7 +24,7 @@ export function FieldEditor({ field, onChange, onRemove }: FieldEditorProps) {
         <input
           placeholder="フィールド名"
           value={field.label}
-          onChange={e => onChange({ ...field, label: e.target.value, key: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+          onChange={e => onChange({ ...field, label: e.target.value })}
           style={{ flex: 1, padding: 6, border: '1px solid #e2e8f0', borderRadius: 4 }}
         />
         <select

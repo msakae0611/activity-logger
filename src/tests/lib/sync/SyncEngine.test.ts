@@ -9,10 +9,10 @@ beforeEach(async () => {
 
 describe('flushSyncQueue', () => {
   it('空のキューでは何もしない', async () => {
-    const mockUpsert = vi.fn().mockResolvedValue({ error: null })
-    const result = await flushSyncQueue(mockUpsert)
+    const mockSync = vi.fn().mockResolvedValue({ error: null })
+    const result = await flushSyncQueue(mockSync)
     expect(result.processed).toBe(0)
-    expect(mockUpsert).not.toHaveBeenCalled()
+    expect(mockSync).not.toHaveBeenCalled()
   })
 
   it('キューの操作をSupabaseに送信しsynced=trueに更新する', async () => {
@@ -27,11 +27,11 @@ describe('flushSyncQueue', () => {
       payload: JSON.stringify(record), created_at: new Date().toISOString(),
     })
 
-    const mockUpsert = vi.fn().mockResolvedValue({ error: null })
-    const result = await flushSyncQueue(mockUpsert)
+    const mockSync = vi.fn().mockResolvedValue({ error: null })
+    const result = await flushSyncQueue(mockSync)
 
     expect(result.processed).toBe(1)
-    expect(mockUpsert).toHaveBeenCalledOnce()
+    expect(mockSync).toHaveBeenCalledOnce()
     const updated = await db.records.get('r1')
     expect(updated?.synced).toBeTruthy()
     const queue = await db.syncQueue.toArray()

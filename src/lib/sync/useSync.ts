@@ -3,9 +3,13 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { flushSyncQueue } from './SyncEngine'
 import { supabase } from '../supabase/client'
-import type { SyncTable } from '../../types'
+import type { SyncTable, SyncOperation } from '../../types'
 
-async function supabaseUpsert(table: SyncTable, data: object) {
+async function supabaseSync(table: SyncTable, operation: SyncOperation, data: { id: string } & Record<string, unknown>) {
+  if (operation === 'delete') {
+    const { error } = await supabase.from(table).delete().eq('id', data.id)
+    return { error }
+  }
   const { error } = await supabase.from(table).upsert(data)
   return { error }
 }
@@ -19,7 +23,6 @@ export function useSync() {
     []
   ) ?? 0
 
-  // オンライン状態の監視
   useEffect(() => {
     const onOnline = () => setIsOnline(true)
     const onOffline = () => setIsOnline(false)
@@ -31,12 +34,11 @@ export function useSync() {
     }
   }, [])
 
-  // オンライン復帰時にフラッシュ
   useEffect(() => {
     if (!isOnline) return
     const flush = async () => {
       setSyncing(true)
-      await flushSyncQueue(supabaseUpsert)
+      await flushSyncQueue(supabaseSync)
       setSyncing(false)
     }
     flush()

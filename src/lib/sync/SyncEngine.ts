@@ -1,9 +1,9 @@
 import { db } from '../db/db'
-import type { SyncTable } from '../../types'
+import type { SyncTable, SyncOperation } from '../../types'
 
-type UpsertFn = (table: SyncTable, data: object) => Promise<{ error: unknown }>
+type SyncFn = (table: SyncTable, operation: SyncOperation, data: object) => Promise<{ error: unknown }>
 
-export async function flushSyncQueue(upsertFn: UpsertFn): Promise<{ processed: number; errors: number }> {
+export async function flushSyncQueue(syncFn: SyncFn): Promise<{ processed: number; errors: number }> {
   const queue = await db.syncQueue.orderBy('created_at').toArray()
   if (queue.length === 0) return { processed: 0, errors: 0 }
 
@@ -12,21 +12,17 @@ export async function flushSyncQueue(upsertFn: UpsertFn): Promise<{ processed: n
 
   for (const item of queue) {
     const payload = JSON.parse(item.payload)
-    const { error } = await upsertFn(item.table, payload)
+    const { error } = await syncFn(item.table, item.operation, payload)
 
     if (error) {
       errors++
       continue
     }
 
-    // sync_queueから削除
     await db.syncQueue.delete(item.id)
 
-    // 対応テーブルのsynced フラグを更新
-    if (item.table === 'records') {
+    if (item.table === 'records' && item.operation !== 'delete') {
       await db.records.update(payload.id, { synced: true })
-    } else if (item.table === 'categories') {
-      await db.categories.update(payload.id, { updated_at: payload.updated_at })
     }
 
     processed++

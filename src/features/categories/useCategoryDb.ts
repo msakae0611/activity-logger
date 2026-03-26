@@ -1,7 +1,7 @@
 import { db } from '../../lib/db/db'
 import { generateId } from '../../lib/utils/uuid'
 import { toISOString } from '../../lib/utils/dates'
-import type { Category, FieldDefinition } from '../../types'
+import type { Category, FieldDefinition, SyncQueueItem } from '../../types'
 
 interface AddCategoryInput {
   name: string
@@ -22,16 +22,44 @@ export async function addCategory(input: AddCategoryInput): Promise<Category> {
     sort_order: maxOrder + 1,
     updated_at: toISOString(),
   }
-  await db.categories.add(category)
+  await db.transaction('rw', db.categories, db.syncQueue, async () => {
+    await db.categories.add(category)
+    await db.syncQueue.add({
+      id: generateId(),
+      table: 'categories',
+      operation: 'insert',
+      payload: JSON.stringify(category),
+      created_at: toISOString(),
+    } as SyncQueueItem)
+  })
   return category
 }
 
 export async function updateCategory(id: string, changes: Partial<Category>): Promise<void> {
-  await db.categories.update(id, { ...changes, updated_at: toISOString() })
+  const updated_at = toISOString()
+  await db.transaction('rw', db.categories, db.syncQueue, async () => {
+    await db.categories.update(id, { ...changes, updated_at })
+    await db.syncQueue.add({
+      id: generateId(),
+      table: 'categories',
+      operation: 'update',
+      payload: JSON.stringify({ id, ...changes, updated_at }),
+      created_at: toISOString(),
+    } as SyncQueueItem)
+  })
 }
 
 export async function deleteCategory(id: string): Promise<void> {
-  await db.categories.delete(id)
+  await db.transaction('rw', db.categories, db.syncQueue, async () => {
+    await db.categories.delete(id)
+    await db.syncQueue.add({
+      id: generateId(),
+      table: 'categories',
+      operation: 'delete',
+      payload: JSON.stringify({ id }),
+      created_at: toISOString(),
+    } as SyncQueueItem)
+  })
 }
 
 export async function getCategories(userId: string): Promise<Category[]> {
