@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -20,6 +20,10 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
   const numericFields = category.fields.filter(f => NUMERIC_TYPES.has(f.type))
   const [selectedField, setSelectedField] = useState<string>('frequency')
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar')
+
+  useEffect(() => {
+    setSelectedField('frequency')
+  }, [category.id])
 
   const { chartData, streak, totalDays, recordedDays } = useAnalyticsData(
     userId, category.id, category.fields, period
@@ -96,27 +100,33 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
       </div>
 
       {/* Chart */}
-      <div style={{ width: '100%', height: 160 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          {chartType === 'bar' ? (
-            <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-              <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
-              <Tooltip formatter={(v: number) => [v, selectedField === 'frequency' ? '記録' : yLabel]} />
-              <Bar dataKey={dataKey} fill={categoryColor} radius={[3, 3, 0, 0]} />
-            </BarChart>
-          ) : (
-            <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-              <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
-              <Tooltip formatter={(v: number) => [v, selectedField === 'frequency' ? '記録' : yLabel]} />
-              <Line type="monotone" dataKey={dataKey} stroke={categoryColor} strokeWidth={2} dot={false} />
-            </LineChart>
-          )}
-        </ResponsiveContainer>
-      </div>
+      {chartData.length === 0 || chartData.every(p => p.frequency === 0 && Object.keys(p).filter(k => k !== 'label' && k !== 'frequency').every(k => p[k] === 0)) ? (
+        <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 13 }}>
+          この期間の記録はありません
+        </div>
+      ) : (
+        <div style={{ width: '100%', height: 160 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            {chartType === 'bar' ? (
+              <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
+                <Tooltip formatter={(v: number) => [v, selectedField === 'frequency' ? '記録' : yLabel]} />
+                <Bar dataKey={dataKey} fill={categoryColor} radius={[3, 3, 0, 0]} />
+              </BarChart>
+            ) : (
+              <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
+                <Tooltip formatter={(v: number) => [v, selectedField === 'frequency' ? '記録' : yLabel]} />
+                <Line type="monotone" dataKey={dataKey} stroke={categoryColor} strokeWidth={2} dot={false} />
+              </LineChart>
+            )}
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   )
 }
