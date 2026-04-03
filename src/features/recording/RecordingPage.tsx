@@ -21,6 +21,7 @@ export function RecordingPage() {
   const [recordedAt, setRecordedAt] = useState<string>(() => new Date().toLocaleDateString('sv-SE'))
   const [showExisting, setShowExisting] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [selectedFieldKey, setSelectedFieldKey] = useState<string | null>(null)
   const dateInputRef = useRef<HTMLInputElement>(null)
 
   const selectedCategory = categories?.find(c => c.id === selectedId)
@@ -42,6 +43,7 @@ export function RecordingPage() {
   useEffect(() => {
     setShowExisting(false)
     setShowForm(false)
+    setSelectedFieldKey(null)
     setValues({})
   }, [selectedId, dateKey])
 
@@ -60,6 +62,7 @@ export function RecordingPage() {
     setValues({})
     setShowExisting(false)
     setShowForm(false)
+    setSelectedFieldKey(null)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -172,7 +175,39 @@ export function RecordingPage() {
 
           {(showForm || showExisting) && (
             <>
-              <DynamicForm fields={selectedCategory.fields} values={values} onChange={setValues} />
+              {/* フィールド選択ボタン */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                {selectedCategory.fields.map(field => {
+                  const isFilled = values[field.key] !== undefined && values[field.key] !== ''
+                  const isSelected = selectedFieldKey === field.key
+                  return (
+                    <button
+                      key={field.key}
+                      onClick={() => setSelectedFieldKey(isSelected ? null : field.key)}
+                      style={{
+                        padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                        whiteSpace: 'nowrap', fontWeight: 600, fontSize: 14,
+                        background: isSelected ? '#ec4899' : isFilled ? '#6366f1' : '#f1f5f9',
+                        color: isSelected || isFilled ? '#fff' : '#334155',
+                      }}
+                    >
+                      {field.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* 選択中フィールドの入力 */}
+              {selectedFieldKey && (
+                <div style={{ marginBottom: 12 }}>
+                  <DynamicForm
+                    fields={selectedCategory.fields.filter(f => f.key === selectedFieldKey)}
+                    values={values}
+                    onChange={setValues}
+                  />
+                </div>
+              )}
+
               {showExisting && (
                 <button
                   onClick={handleDelete}

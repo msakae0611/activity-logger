@@ -19,8 +19,10 @@ export function CalendarView() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, unknown>>({})
   const [addingNew, setAddingNew] = useState(false)
+  const [editingAll, setEditingAll] = useState(false)
   const [newCategoryId, setNewCategoryId] = useState('')
   const [newValues, setNewValues] = useState<Record<string, unknown>>({})
+  const [newFieldKey, setNewFieldKey] = useState<string | null>(null)
 
   const categories = useLiveQuery(
     () => user ? db.categories.where('user_id').equals(user.id).sortBy('sort_order') : [],
@@ -44,6 +46,7 @@ export function CalendarView() {
     setExpandedId(null)
     setEditingId(null)
     setAddingNew(false)
+    setEditingAll(false)
   }
 
   const startEdit = (record: LogRecord) => {
@@ -64,6 +67,7 @@ export function CalendarView() {
     await saveRecord({ categoryId: newCategoryId, userId: user.id, values: newValues, recordedAt: new Date(dt).toISOString() })
     setAddingNew(false)
     setNewValues({})
+    setNewFieldKey(null)
   }
 
   return (
@@ -80,10 +84,18 @@ export function CalendarView() {
           <span style={{ fontWeight: 700, fontSize: 14 }}>
             {new Date(selectedDate + 'T12:00:00').toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })}
           </span>
-          <button
-            onClick={() => { setAddingNew(true); setEditingId(null); setNewValues({}); if (categories?.length) setNewCategoryId(categories[0].id) }}
-            style={{ padding: '4px 12px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
-          >＋ 追加</button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {(selectedRecords?.length ?? 0) > 0 && (
+              <button
+                onClick={() => { setEditingAll(e => !e); setAddingNew(false); setExpandedId(null) }}
+                style={{ padding: '4px 12px', background: editingAll ? '#6366f1' : '#e0e7ff', color: editingAll ? '#fff' : '#4f46e5', border: 'none', borderRadius: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+              >✏️ 編集</button>
+            )}
+            <button
+              onClick={() => { setAddingNew(a => !a); setEditingAll(false); setEditingId(null); setNewValues({}); setNewCategoryId(''); setNewFieldKey(null) }}
+              style={{ padding: '4px 12px', background: addingNew ? '#6366f1' : '#10b981', color: '#fff', border: 'none', borderRadius: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+            >＋ 追加</button>
+          </div>
         </div>
 
         {(selectedRecords?.length === 0) && !addingNew && (
@@ -113,7 +125,7 @@ export function CalendarView() {
 
         {selectedRecords?.map(record => {
           const cat = categoryMap[record.category_id]
-          if (expandedId !== record.id) return null
+          if (!editingAll && expandedId !== record.id) return null
           return (
             <div key={record.id} style={{ marginBottom: 12 }}>
               {editingId === record.id ? (
@@ -154,24 +166,88 @@ export function CalendarView() {
           )
         })}
 
-        {addingNew && (
-          <div style={{ background: '#f0fdf4', borderRadius: 8, padding: 12, borderLeft: '3px solid #10b981' }}>
-            <select
-              value={newCategoryId}
-              onChange={e => { setNewCategoryId(e.target.value); setNewValues({}) }}
-              style={{ width: '100%', padding: 8, marginBottom: 10, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }}
-            >
-              {categories?.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
-            </select>
-            {newCategoryId && categoryMap[newCategoryId] && (
-              <DynamicForm fields={categoryMap[newCategoryId].fields} values={newValues} onChange={setNewValues} />
-            )}
-            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-              <button onClick={handleAddNew} style={{ flex: 1, padding: '8px', background: '#10b981', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>記録する</button>
-              <button onClick={() => setAddingNew(false)} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>キャンセル</button>
+        {addingNew && (() => {
+          const recordByCategory = Object.fromEntries((selectedRecords ?? []).map(r => [r.category_id, r]))
+          const availableCategories = (categories ?? []).map(cat => {
+            const existingRec = recordByCategory[cat.id]
+            const recordedKeys = existingRec ? new Set(Object.keys(existingRec.values)) : new Set<string>()
+            const unrecordedFields = cat.fields.filter(f => !recordedKeys.has(f.key))
+            return { ...cat, unrecordedFields }
+          }).filter(cat => cat.unrecordedFields.length > 0)
+          return (
+          <div style={{ marginTop: 8 }}>
+            {availableCategories.length === 0 ? (
+              <p style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>追加できるカテゴリはありません</p>
+            ) : (
+            <>
+            {/* カテゴリ選択ボタン */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+              {availableCategories.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => { setNewCategoryId(c.id); setNewValues({}); setNewFieldKey(null) }}
+                  style={{
+                    padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                    whiteSpace: 'nowrap', fontWeight: 700, fontSize: 14,
+                    background: newCategoryId === c.id ? '#6366f1' : '#f1f5f9',
+                    color: newCategoryId === c.id ? '#fff' : '#334155',
+                  }}
+                >
+                  {c.icon} {c.name}
+                </button>
+              ))}
             </div>
+
+            {/* フィールド選択ボタン */}
+            {newCategoryId && categoryMap[newCategoryId] && (() => {
+              const selectedCatWithUnrecorded = availableCategories.find(c => c.id === newCategoryId)
+              const fieldsToShow = selectedCatWithUnrecorded?.unrecordedFields ?? categoryMap[newCategoryId].fields
+              return (
+              <>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                  {fieldsToShow.map(field => {
+                    const isFilled = newValues[field.key] !== undefined && newValues[field.key] !== ''
+                    const isSelected = newFieldKey === field.key
+                    return (
+                      <button
+                        key={field.key}
+                        onClick={() => setNewFieldKey(isSelected ? null : field.key)}
+                        style={{
+                          padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                          whiteSpace: 'nowrap', fontWeight: 600, fontSize: 14,
+                          background: isSelected ? '#ec4899' : isFilled ? '#6366f1' : '#f1f5f9',
+                          color: isSelected || isFilled ? '#fff' : '#334155',
+                        }}
+                      >
+                        {field.label}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* 選択中フィールドの入力 */}
+                {newFieldKey && (
+                  <div style={{ marginBottom: 12 }}>
+                    <DynamicForm
+                      fields={categoryMap[newCategoryId].fields.filter(f => f.key === newFieldKey)}
+                      values={newValues}
+                      onChange={setNewValues}
+                    />
+                  </div>
+                )}
+              </>
+            )
+            })()}
+
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <button onClick={handleAddNew} style={{ flex: 1, padding: '8px', background: '#ec4899', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>💾 記録する</button>
+              <button onClick={() => { setAddingNew(false); setNewFieldKey(null) }} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>キャンセル</button>
+            </div>
+            </>
+            )}
           </div>
-        )}
+          )
+        })()}
       </div>
     </div>
   )
