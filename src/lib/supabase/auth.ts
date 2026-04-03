@@ -13,7 +13,13 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut()
+  await supabase.auth.signOut({ scope: 'local' })
+}
+
+export async function resetPassword(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin,
+  })
   if (error) throw error
 }
 

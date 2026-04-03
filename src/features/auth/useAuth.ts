@@ -19,11 +19,22 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // onAuthStateChange fires INITIAL_SESSION immediately — no getSession() needed
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'INITIAL_SESSION' && session) {
+        // ログイン状態を保持しない設定で、かつ今のセッションが新規ログインでない場合はサインアウト
+        const rememberMe = localStorage.getItem('remember_me') === 'true'
+        const sessionActive = sessionStorage.getItem('session_active') === 'true'
+        if (!rememberMe && !sessionActive) {
+          await supabase.auth.signOut()
+          return
+        }
+      }
+
       setUser(session?.user ?? null)
       setLoading(false)
+
       if (event === 'SIGNED_IN' && session?.user) {
+        sessionStorage.setItem('session_active', 'true')
         await seedLocalDb(session.user.id).catch(() => {})
       }
     })

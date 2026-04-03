@@ -96,7 +96,7 @@ export function CategoryEditorPage() {
       {fields.map((f, i) => (
         <FieldEditor key={i} field={f} onChange={f => updateField(i, f)} onRemove={() => removeField(i)} />
       ))}
-      <button onClick={addField} style={{ width: '100%', padding: 10, marginBottom: 16, background: '#f1f5f9', border: '1px dashed #94a3b8', borderRadius: 8, cursor: 'pointer' }}>
+      <button onClick={addField} style={{ width: '100%', padding: 10, marginBottom: 16, background: '#f1f5f9', border: '1px dashed #94a3b8', borderRadius: 8, cursor: 'pointer', color: '#334155' }}>
         + フィールドを追加
       </button>
       <button onClick={handleSave} style={{ width: '100%', padding: 12, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>

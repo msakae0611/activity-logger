@@ -37,7 +37,7 @@ export function LogsPage() {
             <button key={mode} onClick={() => setViewMode(mode)} style={{
               padding: '4px 14px', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600,
               background: viewMode === mode ? '#6366f1' : 'transparent',
-              color: viewMode === mode ? '#fff' : '#64748b',
+              color: viewMode === mode ? '#fff' : '#1e293b',
             }}>
               {mode === 'calendar' ? '📅 カレンダー' : '📋 リスト'}
             </button>

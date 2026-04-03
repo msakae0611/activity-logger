@@ -17,16 +17,16 @@ export function LogCard({ record, category, onDelete }: LogCardProps) {
   })
 
   return (
-    <div style={{ background: '#1e293b', borderRadius: 8, padding: '12px 16px', marginBottom: 8, borderLeft: `3px solid #6366f1`, position: 'relative', border: '1px solid #334155', borderLeftWidth: 3 }}>
-      <div style={{ fontWeight: 600, fontSize: 13, color: '#f1f5f9' }}>
+    <div style={{ background: '#fff', borderRadius: 8, padding: '12px 16px', marginBottom: 8, position: 'relative', border: '1px solid #e2e8f0', borderLeft: '3px solid #6366f1' }}>
+      <div style={{ fontWeight: 600, fontSize: 13, color: '#1e293b' }}>
         {category?.icon ?? '📌'} {category?.name ?? '不明'} — {formatDateTime(record.recorded_at)}
         {!record.synced && <span style={{ marginLeft: 8, fontSize: 11, color: '#f59e0b' }}>⏳未同期</span>}
       </div>
       <div style={{ fontSize: 12, marginTop: 6, display: 'flex', flexWrap: 'wrap', gap: '4px 12px' }}>
         {fields.map(({ label, val, unit }) => (
           <span key={label}>
-            <span style={{ fontWeight: 700, color: '#000' }}>{label}：</span>
-            <span style={{ fontWeight: 400, color: '#334155' }}>{val}{unit}</span>
+            <span style={{ fontWeight: 700, color: '#1e293b' }}>{label}：</span>
+            <span style={{ fontWeight: 400, color: '#1e293b' }}>{val}{unit}</span>
           </span>
         ))}
       </div>

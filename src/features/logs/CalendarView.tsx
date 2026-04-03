@@ -15,6 +15,7 @@ export function CalendarView() {
   const { user } = useAuth()
   const today = new Date().toLocaleDateString('sv-SE')
   const [selectedDate, setSelectedDate] = useState<string>(today)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValues, setEditValues] = useState<Record<string, unknown>>({})
   const [addingNew, setAddingNew] = useState(false)
@@ -40,6 +41,7 @@ export function CalendarView() {
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date)
+    setExpandedId(null)
     setEditingId(null)
     setAddingNew(false)
   }
@@ -53,6 +55,7 @@ export function CalendarView() {
   const handleUpdate = async (record: LogRecord) => {
     await updateRecord({ ...record, values: editValues })
     setEditingId(null)
+    setExpandedId(null)
   }
 
   const handleAddNew = async () => {
@@ -87,40 +90,65 @@ export function CalendarView() {
           <p style={{ color: '#94a3b8', fontSize: 13, textAlign: 'center' }}>この日の記録はありません</p>
         )}
 
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+          {selectedRecords?.map(record => {
+            const cat = categoryMap[record.category_id]
+            const isExpanded = expandedId === record.id
+            return (
+              <button
+                key={record.id}
+                onClick={() => setExpandedId(isExpanded ? null : record.id)}
+                style={{
+                  padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                  whiteSpace: 'nowrap', fontWeight: 700, fontSize: 12,
+                  background: isExpanded ? (cat?.color ?? '#6366f1') : '#f1f5f9',
+                  color: isExpanded ? '#fff' : '#334155',
+                }}
+              >
+                {cat?.icon} {cat?.name}
+              </button>
+            )
+          })}
+        </div>
+
         {selectedRecords?.map(record => {
           const cat = categoryMap[record.category_id]
+          if (expandedId !== record.id) return null
           return (
-            <div key={record.id} style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', marginBottom: 8, borderLeft: `3px solid ${cat?.color ?? '#6366f1'}` }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ fontWeight: 600, fontSize: 13 }}>{cat?.icon} {cat?.name} — {formatDateTime(record.recorded_at)}</span>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  {editingId !== record.id && (
-                    <button onClick={() => startEdit(record)} style={{ background: '#e0e7ff', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 12, color: '#4f46e5' }}>編集</button>
-                  )}
-                  <button onClick={() => deleteRecord(record.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer', fontSize: 12, color: '#dc2626' }}>削除</button>
-                </div>
-              </div>
+            <div key={record.id} style={{ marginBottom: 12 }}>
               {editingId === record.id ? (
-                <>
+                <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', borderLeft: `3px solid ${cat?.color ?? '#6366f1'}` }}>
                   <DynamicForm fields={cat?.fields ?? []} values={editValues} onChange={setEditValues} />
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={() => handleUpdate(record)} style={{ flex: 1, padding: '8px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>保存</button>
                     <button onClick={() => setEditingId(null)} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>キャンセル</button>
                   </div>
-                </>
-              ) : (
-                <div style={{ fontSize: 12, display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginTop: 2 }}>
-                  {Object.entries(record.values).map(([k, v]) => {
-                    const field = cat?.fields.find(f => f.key === k)
-                    const val = Array.isArray(v) ? v.join(', ') : String(v)
-                    return (
-                      <span key={k}>
-                        <span style={{ fontWeight: 700, color: '#000' }}>{field?.label ?? k}：</span>
-                        <span style={{ fontWeight: 400, color: '#334155' }}>{val}{field?.unit ? ` ${field.unit}` : ''}</span>
-                      </span>
-                    )
-                  })}
                 </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+                    {Object.entries(record.values).map(([k, v]) => {
+                      const field = cat?.fields.find(f => f.key === k)
+                      const pillStyle = { padding: '4px 10px', borderRadius: 20, border: 'none', background: '#f1f5f9', color: '#334155', fontSize: 12, whiteSpace: 'nowrap' as const, cursor: 'default' as const }
+                      if (Array.isArray(v)) {
+                        return v.map((item, i) => (
+                          <button key={`${k}-${i}`} style={pillStyle}>
+                            {String(item)}
+                          </button>
+                        ))
+                      }
+                      return (
+                        <button key={k} style={pillStyle}>
+                          {String(v)}{field?.unit ? ` ${field.unit}` : ''}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={() => startEdit(record)} style={{ background: '#e0e7ff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#4f46e5' }}>編集</button>
+                    <button onClick={() => deleteRecord(record.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#dc2626' }}>削除</button>
+                  </div>
+                </>
               )}
             </div>
           )

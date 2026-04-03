@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { db } from '../../lib/db/db'
 import { deleteCategory } from './useCategoryDb'
 import { useAuthContext as useAuth } from '../auth/AuthContext'
-import { signOut } from '../../lib/supabase/auth'
 
 export function CategoryListPage() {
   const { user } = useAuth()
@@ -17,7 +16,7 @@ export function CategoryListPage() {
     <div style={{ padding: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>カテゴリ設定</h2>
-        <button onClick={() => navigate('/settings/categories/new')} style={{ padding: '8px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}>
+        <button onClick={() => navigate('/settings/categories/new')} style={{ padding: '8px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }} >
           + 追加
         </button>
       </div>
@@ -30,9 +29,6 @@ export function CategoryListPage() {
           </div>
         </div>
       ))}
-      <button onClick={() => signOut()} style={{ marginTop: 24, width: '100%', padding: 10, background: '#334155', color: '#f1f5f9', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600 }}>
-        ログアウト
-      </button>
     </div>
   )
 }

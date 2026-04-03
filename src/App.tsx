@@ -4,6 +4,7 @@ import { useAuth } from './features/auth/useAuth'
 import { AuthContext } from './features/auth/AuthContext'
 import { LoginPage } from './features/auth/LoginPage'
 import { Layout } from './components/ui/Layout'
+import { SettingsPage } from './features/settings/SettingsPage'
 import { CategoryListPage } from './features/categories/CategoryListPage'
 import { CategoryEditorPage } from './features/categories/CategoryEditorPage'
 import { RecordingPage } from './features/recording/RecordingPage'
@@ -23,7 +24,8 @@ function AppRoutes() {
           <Route path="/" element={<RecordingPage />} />
           <Route path="/logs" element={<LogsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/settings" element={<CategoryListPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/settings/categories" element={<CategoryListPage />} />
           <Route path="/settings/categories/new" element={<CategoryEditorPage />} />
           <Route path="/settings/categories/:id" element={<CategoryEditorPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
