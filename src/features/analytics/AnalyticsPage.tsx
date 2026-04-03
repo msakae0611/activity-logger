@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../../lib/db/db'
 import { useAuthContext } from '../auth/AuthContext'
@@ -22,11 +23,17 @@ export function AnalyticsPage() {
     [user?.id]
   )
 
-  if (!categories?.length) {
+  if (!user) return null
+
+  if (categories === undefined) {
+    return <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>読み込み中...</div>
+  }
+
+  if (categories.length === 0) {
     return (
       <div style={{ padding: 24, textAlign: 'center', color: '#94a3b8' }}>
         <p>カテゴリがありません</p>
-        <a href="/settings/categories" style={{ color: '#6366f1' }}>設定からカテゴリを追加</a>
+        <Link to="/settings/categories" style={{ color: '#6366f1' }}>設定からカテゴリを追加</Link>
       </div>
     )
   }
