@@ -106,8 +106,14 @@ export function useAnalyticsData(
         r.recorded_at <= toISO)
       .toArray()
 
+    // Separate unbounded query for streak — not limited to the chart period window
+    const allCatRecords = await db.records
+      .where('user_id').equals(userId)
+      .filter(r => r.category_id === categoryId)
+      .toArray()
+
     // Build a map: dateKey → record values (for week/month) or monthKey → records (for year)
-    const recordedDaySet = new Set(records.map(r => r.recorded_at.slice(0, 10)))
+    const recordedDaySet = new Set(allCatRecords.map(r => r.recorded_at.slice(0, 10)))
 
     const chartData: ChartPoint[] = buckets.map(bucket => {
       const point: ChartPoint = { label: bucketLabel(bucket, period), frequency: 0 }
