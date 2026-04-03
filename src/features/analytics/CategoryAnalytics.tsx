@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   ResponsiveContainer, BarChart, Bar, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -18,12 +18,13 @@ const NUMERIC_TYPES = new Set(['number', 'duration', 'rating'])
 
 export function CategoryAnalytics({ userId, category, categoryColor, period }: Props) {
   const numericFields = category.fields.filter(f => NUMERIC_TYPES.has(f.type))
-  const [selectedField, setSelectedField] = useState<string>('frequency')
+  const [fieldState, setFieldState] = useState<{ catId: string; field: string }>({
+    catId: category.id,
+    field: 'frequency',
+  })
+  const selectedField = fieldState.catId === category.id ? fieldState.field : 'frequency'
+  const handleFieldSelect = (f: string) => setFieldState({ catId: category.id, field: f })
   const [chartType, setChartType] = useState<'bar' | 'line'>('bar')
-
-  useEffect(() => {
-    setSelectedField('frequency')
-  }, [category.id])
 
   const { chartData, streak, totalDays, recordedDays } = useAnalyticsData(
     userId, category.id, category.fields, period
@@ -55,7 +56,7 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
       {/* Field selector pills */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
         <button
-          onClick={() => setSelectedField('frequency')}
+          onClick={() => handleFieldSelect('frequency')}
           style={{
             padding: '4px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
             fontSize: 12, fontWeight: 600,
@@ -68,7 +69,7 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
         {numericFields.map(field => (
           <button
             key={field.key}
-            onClick={() => setSelectedField(field.key)}
+            onClick={() => handleFieldSelect(field.key)}
             style={{
               padding: '4px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
               fontSize: 12, fontWeight: 600,
@@ -100,7 +101,7 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
       </div>
 
       {/* Chart */}
-      {chartData.length === 0 || chartData.every(p => p.frequency === 0 && Object.keys(p).filter(k => k !== 'label' && k !== 'frequency').every(k => p[k] === 0)) ? (
+      {chartData.length === 0 || chartData.every(p => !p[dataKey]) ? (
         <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', fontSize: 13 }}>
           この期間の記録はありません
         </div>
