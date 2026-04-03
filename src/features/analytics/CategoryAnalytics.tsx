@@ -112,7 +112,7 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
-                <Tooltip formatter={(v: number) => [v, selectedField === 'frequency' ? '記録' : yLabel]} />
+                <Tooltip formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />
                 <Bar dataKey={dataKey} fill={categoryColor} radius={[3, 3, 0, 0]} />
               </BarChart>
             ) : (
@@ -120,7 +120,7 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
-                <Tooltip formatter={(v: number) => [v, selectedField === 'frequency' ? '記録' : yLabel]} />
+                <Tooltip formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />
                 <Line type="monotone" dataKey={dataKey} stroke={categoryColor} strokeWidth={2} dot={false} />
               </LineChart>
             )}
