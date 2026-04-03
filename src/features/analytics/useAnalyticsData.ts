@@ -88,12 +88,12 @@ export function useAnalyticsData(
   fields: FieldDefinition[],
   period: Period
 ): AnalyticsData {
-  const numericFields = fields.filter(f =>
-    f.type === 'number' || f.type === 'duration' || f.type === 'rating'
-  )
-
   const data = useLiveQuery(async () => {
     if (!userId || !categoryId) return null
+
+    const numericFields = fields.filter(f =>
+      f.type === 'number' || f.type === 'duration' || f.type === 'rating'
+    )
 
     const { from, to, buckets } = getPeriodRange(period)
     const fromISO = from.toISOString().slice(0, 10)
@@ -106,6 +106,8 @@ export function useAnalyticsData(
         r.recorded_at <= toISO)
       .toArray()
 
+    const periodDaySet = new Set(records.map(r => r.recorded_at.slice(0, 10)))
+
     // Separate unbounded query for streak — not limited to the chart period window
     const allCatRecords = await db.records
       .where('user_id').equals(userId)
@@ -115,6 +117,7 @@ export function useAnalyticsData(
     // Build a map: dateKey → record values (for week/month) or monthKey → records (for year)
     const recordedDaySet = new Set(allCatRecords.map(r => r.recorded_at.slice(0, 10)))
 
+    // frequency: binary 0/1 for week/month (habit adherence), record count for year
     const chartData: ChartPoint[] = buckets.map(bucket => {
       const point: ChartPoint = { label: bucketLabel(bucket, period), frequency: 0 }
 
@@ -133,7 +136,8 @@ export function useAnalyticsData(
         const dayRecords = records.filter(r => r.recorded_at.startsWith(dayKey))
         point.frequency = dayRecords.length > 0 ? 1 : 0
         for (const field of numericFields) {
-          const vals = dayRecords
+          const sortedDay = [...dayRecords].sort((a, b) => a.recorded_at.localeCompare(b.recorded_at))
+          const vals = sortedDay
             .map(r => Number(r.values[field.key]))
             .filter(v => !isNaN(v) && v !== 0)
           point[field.key] = vals.length > 0 ? vals[vals.length - 1] : 0
@@ -149,7 +153,7 @@ export function useAnalyticsData(
           const monthKey = `${b.getFullYear()}-${String(b.getMonth() + 1).padStart(2, '0')}`
           return records.some(r => r.recorded_at.startsWith(monthKey))
         }).length
-      : buckets.filter(b => recordedDaySet.has(toDateKey(b))).length
+      : buckets.filter(b => periodDaySet.has(toDateKey(b))).length
 
     const streak = computeStreak(recordedDaySet)
 
