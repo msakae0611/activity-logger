@@ -64,11 +64,8 @@ export function FieldEditor({ field, onChange, onRemove }: FieldEditorProps) {
           <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>項目リスト（1行に1つ入力）</div>
           <textarea
             placeholder={'レッグプレス\nチェストプレス\nラットプルダウン'}
-            value={(field.options ?? []).join('\n')}
-            onChange={e => {
-              const options = e.target.value.split('\n').map(s => s.trim()).filter(Boolean)
-              onChange({ ...field, options })
-            }}
+            value={optionsText}
+            onChange={e => handleOptionsChange(e.target.value)}
             rows={4}
             style={{ width: '100%', padding: 6, border: '1px solid #e2e8f0', borderRadius: 4, resize: 'vertical', boxSizing: 'border-box', marginBottom: 8 }}
           />
