@@ -9,6 +9,12 @@ export type FieldType =
   | 'boolean'
   | 'duration'
   | 'rating'
+  | 'item-list'
+
+export interface ItemListSubField {
+  key: string    // 例: 'weight', 'reps'
+  label: string  // 例: 'レベル', '回数'
+}
 
 export interface FieldDefinition {
   key: string
@@ -17,6 +23,8 @@ export interface FieldDefinition {
   required?: boolean
   unit?: string             // type=number用
   options?: string[]        // type=select, multi-select用
+  subFields?: ItemListSubField[]   // item-list 専用
+  computedTotal?: boolean          // true なら subFields[0].value × subFields[1].value を自動計算
 }
 
 export interface Category {
