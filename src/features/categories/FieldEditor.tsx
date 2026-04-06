@@ -10,6 +10,7 @@ const FIELD_TYPES: { value: FieldType; label: string }[] = [
   { value: 'boolean', label: 'ON/OFF' },
   { value: 'duration', label: '時間(HH:MM)' },
   { value: 'rating', label: '★評価' },
+  { value: 'item-list', label: 'アイテムリスト' },
 ]
 
 interface FieldEditorProps {
@@ -56,6 +57,66 @@ export function FieldEditor({ field, onChange, onRemove }: FieldEditorProps) {
           onChange={e => onChange({ ...field, unit: e.target.value })}
           style={{ width: '100%', padding: 6, border: '1px solid #e2e8f0', borderRadius: 4 }}
         />
+      )}
+      {field.type === 'item-list' && (
+        <div>
+          {/* 項目リスト */}
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>項目リスト（1行に1つ入力）</div>
+          <textarea
+            placeholder={'レッグプレス\nチェストプレス\nラットプルダウン'}
+            value={(field.options ?? []).join('\n')}
+            onChange={e => {
+              const options = e.target.value.split('\n').map(s => s.trim()).filter(Boolean)
+              onChange({ ...field, options })
+            }}
+            rows={4}
+            style={{ width: '100%', padding: 6, border: '1px solid #e2e8f0', borderRadius: 4, resize: 'vertical', boxSizing: 'border-box', marginBottom: 8 }}
+          />
+
+          {/* サブフィールド */}
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>サブフィールド（数値入力欄）</div>
+          {(field.subFields ?? []).map((sf, idx) => (
+            <div key={sf.key} style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
+              <input
+                placeholder={`サブフィールド名 (例: レベル)`}
+                value={sf.label}
+                onChange={e => {
+                  const next = (field.subFields ?? []).map((x, i) => i === idx ? { ...x, label: e.target.value } : x)
+                  onChange({ ...field, subFields: next })
+                }}
+                style={{ flex: 1, padding: 6, border: '1px solid #e2e8f0', borderRadius: 4 }}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const next = (field.subFields ?? []).filter((_, i) => i !== idx)
+                  onChange({ ...field, subFields: next })
+                }}
+                style={{ padding: '6px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+              >✕</button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              const next = [...(field.subFields ?? []), { key: `sf_${Date.now()}`, label: '' }]
+              onChange({ ...field, subFields: next })
+            }}
+            style={{ width: '100%', padding: 6, marginBottom: 8, background: '#f1f5f9', border: '1px dashed #94a3b8', borderRadius: 6, cursor: 'pointer', color: '#334155', fontSize: 13 }}
+          >+ サブフィールドを追加</button>
+
+          {/* 合計自動計算 */}
+          {(field.subFields ?? []).length >= 2 && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
+              <input
+                type="checkbox"
+                checked={field.computedTotal ?? false}
+                onChange={e => onChange({ ...field, computedTotal: e.target.checked })}
+              />
+              合計を自動計算（{field.subFields![0].label || 'サブフィールド1'} × {field.subFields![1].label || 'サブフィールド2'}）
+            </label>
+          )}
+        </div>
       )}
       {(field.type === 'select' || field.type === 'multi-select') && (
         <div>
