@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FieldDefinition } from '../../types'
 
 interface DynamicFormProps {
@@ -9,6 +9,25 @@ interface DynamicFormProps {
 
 export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
   const [expandedItems, setExpandedItems] = useState<Record<string, Set<string>>>({})
+
+  // expandedItems cleanup: clear sets when parent resets item-list entries to empty
+  useEffect(() => {
+    const itemListFields = fields.filter(f => f.type === 'item-list')
+    if (itemListFields.length === 0) return
+
+    setExpandedItems(prev => {
+      const next = { ...prev }
+      let changed = false
+      for (const f of itemListFields) {
+        const entries = (values[f.key] as Array<{ name: string }> | undefined) ?? []
+        if (entries.length === 0 && next[f.key]?.size > 0) {
+          next[f.key] = new Set()
+          changed = true
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [values, fields])
 
   const update = (key: string, value: unknown) => onChange({ ...values, [key]: value })
 
@@ -99,9 +118,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
             }
 
             const updateEntry = (itemName: string, subKey: string, val: number) => {
-              const exists = entries.some(e => e.name === itemName)
-              const base = exists ? entries : [...entries, { name: itemName }]
-              const updated = base.map(e => {
+              const updated = entries.map(e => {
                 if (e.name !== itemName) return e
                 const next = { ...e, [subKey]: val }
                 if (field.computedTotal && field.subFields && field.subFields.length >= 2) {
@@ -140,7 +157,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                 </div>
 
                 {/* 選択済み項目の入力欄 */}
-                {Array.from(fieldExpanded).map(itemName => {
+                {(field.options ?? []).filter(opt => fieldExpanded.has(opt)).map(itemName => {
                   const entry = entries.find(e => e.name === itemName) ?? { name: itemName }
                   return (
                     <div key={itemName} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 10, marginBottom: 8 }}>

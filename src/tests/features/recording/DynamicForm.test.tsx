@@ -2,8 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { DynamicForm } from '../../../features/recording/DynamicForm'
-import type { FieldDefinition } from '../../../types'
-import type { ItemListSubField } from '../../../types'
+import type { FieldDefinition, ItemListSubField } from '../../../types'
 
 const fields: FieldDefinition[] = [
   { key: 'work_hours', label: '作業時間', type: 'number', unit: 'h' },
