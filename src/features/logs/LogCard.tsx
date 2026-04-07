@@ -17,7 +17,7 @@ export function LogCard({ record, category, onDelete }: LogCardProps) {
   })
 
   return (
-    <div style={{ background: '#fff', borderRadius: 8, padding: '12px 16px', marginBottom: 8, position: 'relative', border: '1px solid #e2e8f0', borderLeft: '3px solid #6366f1' }}>
+    <div style={{ background: '#fff', borderRadius: 8, padding: '12px 16px', marginBottom: 8, position: 'relative', border: '1px solid #e2e8f0', borderLeft: `3px solid ${category?.color ?? '#c4b5fd'}` }}>
       <div style={{ fontWeight: 600, fontSize: 13, color: '#1e293b' }}>
         {category?.icon ?? '📌'} {category?.name ?? '不明'} — {formatDateTime(record.recorded_at)}
         {!record.synced && <span style={{ marginLeft: 8, fontSize: 11, color: '#f59e0b' }}>⏳未同期</span>}
