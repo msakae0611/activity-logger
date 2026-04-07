@@ -141,8 +141,8 @@ export function CategoryEditorPage() {
         </div>
       </div>
       <div style={{ marginBottom: 16 }}>
-        <label>カテゴリ名<br />
-          <input value={name} onChange={e => setName(e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4 }} />
+        <label style={{ display: 'block' }}>カテゴリ名
+          <input value={name} onChange={e => setName(e.target.value)} style={{ display: 'block', width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, marginTop: 4, boxSizing: 'border-box' }} />
         </label>
       </div>
       <h3>フィールド定義</h3>
