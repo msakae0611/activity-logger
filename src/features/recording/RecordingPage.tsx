@@ -99,7 +99,7 @@ export function RecordingPage() {
       <h2>記録</h2>
 
       {/* Category selector */}
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 16, paddingBottom: 4 }}>
+      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 16, paddingBottom: 4, paddingTop: 4 }}>
         {categories?.map(cat => {
           const catColor = cat.color ?? '#c4b5fd'
           const isSelected = selectedId === cat.id
