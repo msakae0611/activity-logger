@@ -38,4 +38,16 @@ describe('useCategoryDb', () => {
     const cats = await getCategories(mockUserId)
     expect(cats).toHaveLength(2)
   })
+
+  it('colorを指定してカテゴリを追加できる', async () => {
+    const cat = await addCategory({ name: 'カラーテスト', icon: '🎨', fields: [], userId: mockUserId, color: '#c4b5fd' })
+    expect(cat.color).toBe('#c4b5fd')
+  })
+
+  it('colorを更新できる', async () => {
+    const cat = await addCategory({ name: 'カラーテスト', icon: '🎨', fields: [], userId: mockUserId })
+    await updateCategory(cat.id, { color: '#fca5a5' })
+    const updated = await db.categories.get(cat.id)
+    expect(updated?.color).toBe('#fca5a5')
+  })
 })

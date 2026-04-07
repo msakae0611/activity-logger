@@ -8,6 +8,7 @@ interface AddCategoryInput {
   icon: string
   fields: FieldDefinition[]
   userId: string
+  color?: string
 }
 
 export async function addCategory(input: AddCategoryInput): Promise<Category> {
@@ -20,6 +21,7 @@ export async function addCategory(input: AddCategoryInput): Promise<Category> {
     icon: input.icon,
     fields: input.fields,
     sort_order: maxOrder + 1,
+    color: input.color,
     updated_at: toISOString(),
   }
   await db.transaction('rw', db.categories, db.syncQueue, async () => {

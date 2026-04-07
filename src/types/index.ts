@@ -34,6 +34,7 @@ export interface Category {
   icon: string
   fields: FieldDefinition[]
   sort_order: number
+  color?: string           // パステルカラーの hex 値（例: '#c4b5fd'）
   updated_at: string        // ISO8601
 }
 
