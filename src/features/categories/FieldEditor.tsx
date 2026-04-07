@@ -17,9 +17,13 @@ interface FieldEditorProps {
   field: FieldDefinition
   onChange: (field: FieldDefinition) => void
   onRemove: () => void
+  onMoveUp: () => void
+  onMoveDown: () => void
+  isFirst: boolean
+  isLast: boolean
 }
 
-export function FieldEditor({ field, onChange, onRemove }: FieldEditorProps) {
+export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, isFirst, isLast }: FieldEditorProps) {
   const [optionsText, setOptionsText] = useState((field.options ?? []).join('\n'))
 
   useEffect(() => {
@@ -34,7 +38,33 @@ export function FieldEditor({ field, onChange, onRemove }: FieldEditorProps) {
 
   return (
     <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 12, marginBottom: 8 }}>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <button
+            type="button"
+            onClick={onMoveUp}
+            disabled={isFirst}
+            style={{
+              padding: '2px 6px', fontSize: 12, border: '1px solid #e2e8f0', borderRadius: 4,
+              cursor: isFirst ? 'default' : 'pointer',
+              background: isFirst ? '#f8fafc' : '#f1f5f9',
+              color: isFirst ? '#cbd5e1' : '#475569',
+              lineHeight: 1,
+            }}
+          >↑</button>
+          <button
+            type="button"
+            onClick={onMoveDown}
+            disabled={isLast}
+            style={{
+              padding: '2px 6px', fontSize: 12, border: '1px solid #e2e8f0', borderRadius: 4,
+              cursor: isLast ? 'default' : 'pointer',
+              background: isLast ? '#f8fafc' : '#f1f5f9',
+              color: isLast ? '#cbd5e1' : '#475569',
+              lineHeight: 1,
+            }}
+          >↓</button>
+        </div>
         <input
           placeholder="フィールド名"
           value={field.label}
