@@ -184,6 +184,21 @@ export function RecordingPage() {
 
           {(showForm || showExisting) && (
             <>
+              {/* 上部保存・削除ボタン */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                <button onClick={handleSave} style={{ flex: 1, padding: 12, background: '#ec4899', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 15 }}>
+                  {saved ? '✓ 保存しました！' : existingRecord ? '💾 上書き保存' : '💾 記録する'}
+                </button>
+                {showExisting && (
+                  <button
+                    onClick={handleDelete}
+                    style={{ padding: '12px 16px', background: '#fff', color: '#1e293b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+                  >
+                    削除
+                  </button>
+                )}
+              </div>
+
               {/* フィールド選択ボタン */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
                 {selectedCategory.fields.map(field => {
