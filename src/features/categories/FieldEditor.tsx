@@ -119,7 +119,7 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
                   const next = (field.subFields ?? []).filter((_, i) => i !== idx)
                   onChange({ ...field, subFields: next })
                 }}
-                style={{ padding: '6px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer' }}
+                style={{ padding: '6px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#dc2626' }}
               >✕</button>
             </div>
           ))}
