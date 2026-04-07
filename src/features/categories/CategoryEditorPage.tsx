@@ -70,7 +70,7 @@ export function CategoryEditorPage() {
     <div style={{ padding: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button onClick={() => navigate('/settings')} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontSize: 14, color: '#475569' }}>
+          <button onClick={() => navigate('/settings')} style={{ padding: '6px 12px', background: 'none', border: '1px solid #94a3b8', borderRadius: 8, cursor: 'pointer', fontSize: 14, color: '#1e293b', fontWeight: 600 }}>
             ← 戻る
           </button>
           <h2 style={{ margin: 0 }}>{id ? 'カテゴリ編集' : '新規カテゴリ'}</h2>
