@@ -69,7 +69,12 @@ export function CategoryEditorPage() {
   return (
     <div style={{ padding: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <h2 style={{ margin: 0 }}>{id ? 'カテゴリ編集' : '新規カテゴリ'}</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={() => navigate('/settings')} style={{ padding: '6px 12px', background: 'none', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontSize: 14, color: '#475569' }}>
+            ← 戻る
+          </button>
+          <h2 style={{ margin: 0 }}>{id ? 'カテゴリ編集' : '新規カテゴリ'}</h2>
+        </div>
         <button onClick={handleSave} style={{ padding: '8px 20px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>
           保存
         </button>
