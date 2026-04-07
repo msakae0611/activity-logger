@@ -149,7 +149,7 @@ export function CategoryEditorPage() {
           key={i}
           field={f}
           onChange={f => updateField(i, f)}
-          onRemove={() => removeField(i)}
+          onRemove={() => { if (window.confirm(`「${f.label || 'このフィールド'}」を削除しますか？`)) removeField(i) }}
           onMoveUp={() => moveField(i, 'up')}
           onMoveDown={() => moveField(i, 'down')}
           isFirst={i === 0}
