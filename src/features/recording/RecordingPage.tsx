@@ -100,16 +100,25 @@ export function RecordingPage() {
 
       {/* Category selector */}
       <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 16, paddingBottom: 4 }}>
-        {categories?.map(cat => (
-          <button key={cat.id} onClick={() => { setSelectedId(cat.id); setValues({}) }}
-            style={{ padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
-              background: selectedId === cat.id ? '#6366f1' : '#f1f5f9',
-              color: selectedId === cat.id ? '#fff' : '#334155',
-              fontWeight: selectedId === cat.id ? 700 : 400,
-            }}>
-            {cat.icon} {cat.name}
-          </button>
-        ))}
+        {categories?.map(cat => {
+          const catColor = cat.color ?? '#c4b5fd'
+          const isSelected = selectedId === cat.id
+          return (
+            <button key={cat.id} onClick={() => { setSelectedId(cat.id); setValues({}) }}
+              style={{
+                padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                background: catColor,
+                color: '#1e293b',
+                fontWeight: isSelected ? 700 : 400,
+                opacity: isSelected ? 1 : 0.55,
+                outline: isSelected ? `2px solid ${catColor}` : 'none',
+                outlineOffset: 2,
+              }}>
+              {cat.icon} {cat.name}
+            </button>
+          )
+        })}
       </div>
 
       {/* Mini calendar */}
