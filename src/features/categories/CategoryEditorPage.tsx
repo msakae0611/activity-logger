@@ -113,7 +113,7 @@ export function CategoryEditorPage() {
       {/* カラー選択 */}
       <div style={{ marginBottom: 16 }}>
         <label style={{ fontWeight: 600, fontSize: 13 }}>カラー</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 6, alignItems: 'center' }}>
           {PASTEL_COLORS.map(c => (
             <button
               key={c}
