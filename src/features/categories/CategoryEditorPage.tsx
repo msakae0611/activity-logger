@@ -120,7 +120,7 @@ export function CategoryEditorPage() {
               type="button"
               onClick={() => setColor(c)}
               style={{
-                width: 32, height: 32, borderRadius: '50%',
+                width: color === c ? 40 : 26, height: color === c ? 40 : 26, borderRadius: '50%',
                 background: c,
                 border: color === c ? '3px solid #1e293b' : '2px solid transparent',
                 cursor: 'pointer',
