@@ -36,24 +36,32 @@ export function LoginPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{ width: '100%', maxWidth: 400, padding: 24 }}>
+    <div style={{ width: '100%', maxWidth: 400, padding: 24, boxSizing: 'border-box' }}>
       <h1>Activity Logger</h1>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: 12 }}>
-          <label>メールアドレス<br />
+          <label style={{ display: 'block', textAlign: 'left' }}>メールアドレス
             <input
-              type="email" value={email}
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={email}
               onChange={e => setEmail(e.target.value)}
-              required style={{ width: '100%', padding: 8 }}
+              required
+              style={{ display: 'block', width: '100%', padding: 8, marginTop: 4, boxSizing: 'border-box' }}
             />
           </label>
         </div>
         <div style={{ marginBottom: 12 }}>
-          <label>パスワード<br />
+          <label style={{ display: 'block', textAlign: 'left' }}>パスワード
             <input
-              type="password" value={password}
+              type="password"
+              name="password"
+              autoComplete={isSignUp ? 'new-password' : 'current-password'}
+              value={password}
               onChange={e => setPassword(e.target.value)}
-              required style={{ width: '100%', padding: 8 }}
+              required
+              style={{ display: 'block', width: '100%', padding: 8, marginTop: 4, boxSizing: 'border-box' }}
             />
           </label>
         </div>
