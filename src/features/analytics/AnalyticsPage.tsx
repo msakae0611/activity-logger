@@ -6,7 +6,6 @@ import { useAuthContext } from '../auth/AuthContext'
 import { CategoryAnalytics } from './CategoryAnalytics'
 import type { Period } from './useAnalyticsData'
 
-const DOT_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899']
 
 const PERIODS: { key: Period; label: string }[] = [
   { key: 'week', label: '週' },
@@ -61,12 +60,12 @@ export function AnalyticsPage() {
       </div>
 
       {/* Category cards */}
-      {categories.map((cat, i) => (
+      {categories.map((cat) => (
         <CategoryAnalytics
           key={cat.id}
           userId={user!.id}
           category={cat}
-          categoryColor={DOT_COLORS[i % DOT_COLORS.length]}
+          categoryColor={cat.color ?? '#c4b5fd'}
           period={period}
         />
       ))}
