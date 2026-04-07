@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { signOut } from '../../lib/supabase/auth'
+
 
 const menuItem = {
   display: 'flex', justifyContent: 'space-between', alignItems: 'center',

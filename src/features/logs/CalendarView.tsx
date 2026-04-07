@@ -5,7 +5,7 @@ import { MiniCalendar } from './MiniCalendar'
 import { DynamicForm } from '../recording/DynamicForm'
 import { saveRecord } from '../recording/useRecording'
 import { updateRecord, deleteRecord } from './useLogsDb'
-import { toLocalDateTimeString, formatDateTime } from '../../lib/utils/dates'
+import { toLocalDateTimeString } from '../../lib/utils/dates'
 import { useAuthContext as useAuth } from '../auth/AuthContext'
 import type { Record as LogRecord } from '../../types'
 

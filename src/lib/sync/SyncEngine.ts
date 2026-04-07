@@ -1,7 +1,7 @@
 import { db } from '../db/db'
 import type { SyncTable, SyncOperation } from '../../types'
 
-type SyncFn = (table: SyncTable, operation: SyncOperation, data: object) => Promise<{ error: unknown }>
+type SyncFn = (table: SyncTable, operation: SyncOperation, data: { id: string } & Record<string, unknown>) => Promise<{ error: unknown }>
 
 export async function flushSyncQueue(syncFn: SyncFn): Promise<{ processed: number; errors: number }> {
   const queue = await db.syncQueue.orderBy('created_at').toArray()
