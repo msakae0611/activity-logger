@@ -49,7 +49,7 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
               cursor: isFirst ? 'default' : 'pointer',
               background: isFirst ? '#f8fafc' : '#f1f5f9',
               color: isFirst ? '#cbd5e1' : '#475569',
-              lineHeight: 1,
+              lineHeight: 1, fontWeight: 700,
             }}
           >↑</button>
           <button
@@ -61,7 +61,7 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
               cursor: isLast ? 'default' : 'pointer',
               background: isLast ? '#f8fafc' : '#f1f5f9',
               color: isLast ? '#cbd5e1' : '#475569',
-              lineHeight: 1,
+              lineHeight: 1, fontWeight: 700,
             }}
           >↓</button>
         </div>
@@ -78,7 +78,7 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
         >
           {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
-        <button onClick={onRemove} style={{ padding: '6px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer' }}>✕</button>
+        <button onClick={onRemove} style={{ padding: '6px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#dc2626' }}>✕</button>
       </div>
       {field.type === 'number' && (
         <input
