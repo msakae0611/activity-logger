@@ -25,7 +25,7 @@ export function CategoryListPage() {
           <span style={{ color: '#f1f5f9', fontWeight: 500 }}>{cat.icon} {cat.name}</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => navigate(`/settings/categories/${cat.id}`)} style={{ padding: '6px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>編集</button>
-            <button onClick={() => deleteCategory(cat.id)} style={{ padding: '6px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>削除</button>
+            <button onClick={() => { if (window.confirm(`「${cat.name}」を削除しますか？`)) deleteCategory(cat.id) }} style={{ padding: '6px 14px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>削除</button>
           </div>
         </div>
       ))}
