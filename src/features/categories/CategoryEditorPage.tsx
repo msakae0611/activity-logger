@@ -14,13 +14,6 @@ const PASTEL_COLORS = [
   '#6ee7b7', // ミント
   '#7dd3fc', // スカイ
   '#fde68a', // バター
-  '#f9a8d4', // ブロッサム
-  '#a7f3d0', // セージ
-  '#fdba74', // ピーチオレンジ
-  '#a5f3fc', // パウダーブルー
-  '#d8b4fe', // リラック
-  '#fcd34d', // シャンパン
-  '#fbb6ce', // スモークピンク
 ]
 
 const EMOJI_LIST = [
