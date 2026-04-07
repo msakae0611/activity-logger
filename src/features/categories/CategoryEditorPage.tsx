@@ -69,7 +69,7 @@ export function CategoryEditorPage() {
   return (
     <div style={{ padding: 16 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', marginBottom: 12 }}>
-        <div>
+        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
           <button onClick={() => navigate('/settings')} style={{ padding: '8px 12px', background: 'none', border: '1px solid #94a3b8', borderRadius: 8, cursor: 'pointer', fontSize: 14, color: '#f1f5f9', fontWeight: 600 }}>
             ← 戻る
           </button>
