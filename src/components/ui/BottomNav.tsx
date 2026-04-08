@@ -11,8 +11,8 @@ export function BottomNav() {
   return (
     <nav style={{
       position: 'fixed', bottom: 0, left: 0, right: 0,
-      display: 'flex', background: '#fff',
-      borderTop: '1px solid #e2e8f0',
+      display: 'flex', background: '#1e293b',
+      borderTop: '1px solid #334155',
       zIndex: 100,
     }}>
       {tabs.map(tab => (
