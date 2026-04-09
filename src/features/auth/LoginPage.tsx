@@ -41,10 +41,10 @@ export function LoginPage() {
     marginTop: 6,
     boxSizing: 'border-box',
     fontSize: 16,
-    border: '1px solid #888',
+    border: '1px solid #475569',
     borderRadius: 6,
-    background: '#fff',
-    color: '#000',
+    background: '#0f172a',
+    color: '#e2e8f0',
   }
 
   return (
