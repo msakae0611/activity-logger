@@ -69,12 +69,12 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
           placeholder="フィールド名"
           value={field.label}
           onChange={e => onChange({ ...field, label: e.target.value })}
-          style={{ flex: 1, padding: 6, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }}
+          style={{ flex: 1, minWidth: 0, padding: 6, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }}
         />
         <select
           value={field.type}
           onChange={e => onChange({ ...field, type: e.target.value as FieldType })}
-          style={{ padding: 6, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }}
+          style={{ padding: 6, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0', maxWidth: 110, fontSize: 13 }}
         >
           {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
