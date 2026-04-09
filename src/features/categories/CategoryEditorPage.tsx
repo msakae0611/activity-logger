@@ -142,7 +142,7 @@ export function CategoryEditorPage() {
       </div>
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: 'block' }}>カテゴリ名
-          <input value={name} onChange={e => setName(e.target.value)} style={{ display: 'block', width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, marginTop: 4, boxSizing: 'border-box' }} />
+          <input value={name} onChange={e => setName(e.target.value)} style={{ display: 'block', width: '100%', padding: 8, border: '1px solid #334155', borderRadius: 4, marginTop: 4, boxSizing: 'border-box', background: '#0f172a', color: '#e2e8f0' }} />
         </label>
       </div>
       <h3>フィールド定義</h3>
@@ -158,7 +158,7 @@ export function CategoryEditorPage() {
           isLast={i === fields.length - 1}
         />
       ))}
-      <button onClick={addField} style={{ width: '100%', padding: 10, marginBottom: 16, background: '#f1f5f9', border: '1px dashed #94a3b8', borderRadius: 8, cursor: 'pointer', color: '#334155' }}>
+      <button onClick={addField} style={{ width: '100%', padding: 10, marginBottom: 16, background: '#1e293b', border: '1px dashed #94a3b8', borderRadius: 8, cursor: 'pointer', color: '#e2e8f0' }}>
         + フィールドを追加
       </button>
       <button onClick={handleSave} style={{ width: '100%', padding: 12, background: '#6366f1', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>
