@@ -111,17 +111,17 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
             {chartType === 'bar' ? (
               <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
-                <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
-                <Tooltip formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />
+                <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#94a3b8' }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} unit={yLabel ? ` ${yLabel}` : ''} />
+                <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', color: '#e2e8f0' }} formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />
                 <Bar dataKey={dataKey} fill={categoryColor} radius={[3, 3, 0, 0]} />
               </BarChart>
             ) : (
               <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
-                <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
-                <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
-                <Tooltip formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />
+                <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#94a3b8' }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} unit={yLabel ? ` ${yLabel}` : ''} />
+                <Tooltip contentStyle={{ background: '#1e293b', border: '1px solid #334155', color: '#e2e8f0' }} formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />
                 <Line type="monotone" dataKey={dataKey} stroke={categoryColor} strokeWidth={2} dot={false} />
               </LineChart>
             )}

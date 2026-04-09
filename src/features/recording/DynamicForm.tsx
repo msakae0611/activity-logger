@@ -37,7 +37,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
         <div key={field.key} style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
             <label htmlFor={field.key} style={{ fontSize: 13, fontWeight: 600 }}>
-              {field.label}{field.required && <span style={{ color: 'red' }}> *</span>}
+              {field.label}{field.required && <span style={{ color: '#ef4444' }}> *</span>}
             </label>
             {field.unit && <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 13 }}>({field.unit})</span>}
           </div>

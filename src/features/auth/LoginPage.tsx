@@ -97,7 +97,7 @@ export function LoginPage() {
             <span style={{ fontSize: 14 }}>ログイン状態を保持する</span>
           </label>
         </div>
-        {error && <p style={{ color: 'red', marginBottom: 12 }}>{error}</p>}
+        {error && <p style={{ color: '#ef4444', marginBottom: 12 }}>{error}</p>}
         <button type="submit" disabled={loading} style={{ display: 'block', width: '100%', padding: '12px', fontSize: 16, boxSizing: 'border-box' }}>
           {loading ? '処理中...' : isSignUp ? '新規登録' : 'ログイン'}
         </button>

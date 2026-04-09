@@ -159,8 +159,8 @@ export function RecordingPage() {
                   onClick={handleExistingClick}
                   style={{
                     marginLeft: 'auto', padding: '8px 12px', whiteSpace: 'nowrap',
-                    background: showExisting ? '#6366f1' : '#ede9fe',
-                    color: showExisting ? '#fff' : '#4f46e5',
+                    background: showExisting ? '#6366f1' : '#312e81',
+                    color: showExisting ? '#fff' : '#a5b4fc',
                     border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 13, fontWeight: 600,
                   }}
                 >
