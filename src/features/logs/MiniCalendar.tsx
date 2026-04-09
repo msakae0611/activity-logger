@@ -122,7 +122,7 @@ export function MiniCalendar({ userId, selectedDate, onDateSelect }: Props) {
                     style={{
                       textAlign: 'center', cursor: 'pointer', padding: '2px 0',
                       borderRadius: 6,
-                      background: isSelected ? '#6366f1' : isToday ? '#ede9fe' : 'transparent',
+                      background: isSelected ? '#6366f1' : isToday ? '#312e81' : 'transparent',
                       outline: isToday && !isSelected ? '1px solid #6366f1' : 'none',
                       position: 'relative',
                     }}
