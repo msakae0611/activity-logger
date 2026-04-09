@@ -38,17 +38,17 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
   const periodLabel = period === 'week' ? '週' : period === 'month' ? '月' : '年'
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${categoryColor}` }}>
+    <div style={{ background: '#1e293b', borderRadius: 12, padding: '14px 16px', marginBottom: 12, borderLeft: `4px solid ${categoryColor}` }}>
       {/* Header */}
       <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>
         {category.icon} {category.name}
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 12, fontSize: 13, color: '#475569' }}>
-        <span>🔥 連続 <strong style={{ color: '#1e293b' }}>{streak}日</strong></span>
+      <div style={{ display: 'flex', gap: 16, marginBottom: 12, fontSize: 13, color: '#94a3b8' }}>
+        <span>🔥 連続 <strong style={{ color: '#f1f5f9' }}>{streak}日</strong></span>
         <span>
-          今{periodLabel} <strong style={{ color: '#1e293b' }}>{recordedDays}/{totalDays}</strong>
+          今{periodLabel} <strong style={{ color: '#f1f5f9' }}>{recordedDays}/{totalDays}</strong>
           {period !== 'year' ? '日' : 'ヶ月'}
         </span>
       </div>
@@ -60,8 +60,8 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
           style={{
             padding: '4px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
             fontSize: 12, fontWeight: 600,
-            background: selectedField === 'frequency' ? categoryColor : '#f1f5f9',
-            color: selectedField === 'frequency' ? '#fff' : '#334155',
+            background: selectedField === 'frequency' ? categoryColor : '#0f172a',
+            color: selectedField === 'frequency' ? '#fff' : '#e2e8f0',
           }}
         >
           記録頻度
@@ -73,8 +73,8 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
             style={{
               padding: '4px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
               fontSize: 12, fontWeight: 600,
-              background: selectedField === field.key ? categoryColor : '#f1f5f9',
-              color: selectedField === field.key ? '#fff' : '#334155',
+              background: selectedField === field.key ? categoryColor : '#0f172a',
+              color: selectedField === field.key ? '#fff' : '#e2e8f0',
             }}
           >
             {field.label}{field.unit ? ` (${field.unit})` : ''}
@@ -91,8 +91,8 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
             style={{
               padding: '3px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
               fontSize: 11, fontWeight: 600,
-              background: chartType === type ? '#334155' : '#f1f5f9',
-              color: chartType === type ? '#fff' : '#64748b',
+              background: chartType === type ? '#334155' : '#0f172a',
+              color: chartType === type ? '#fff' : '#94a3b8',
             }}
           >
             {type === 'bar' ? '棒' : '折れ線'}
@@ -110,7 +110,7 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'bar' ? (
               <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
                 <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
                 <Tooltip formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />
@@ -118,7 +118,7 @@ export function CategoryAnalytics({ userId, category, categoryColor, period }: P
               </BarChart>
             ) : (
               <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" />
                 <XAxis dataKey="label" tick={{ fontSize: 9 }} interval="preserveStartEnd" />
                 <YAxis tick={{ fontSize: 9 }} unit={yLabel ? ` ${yLabel}` : ''} />
                 <Tooltip formatter={(v: unknown) => [Number(v), selectedField === 'frequency' ? '記録' : yLabel]} />

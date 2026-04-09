@@ -50,8 +50,8 @@ export function AnalyticsPage() {
             style={{
               flex: 1, padding: '8px', borderRadius: 20, border: 'none', cursor: 'pointer',
               fontWeight: 700, fontSize: 14,
-              background: period === p.key ? '#6366f1' : '#f1f5f9',
-              color: period === p.key ? '#fff' : '#334155',
+              background: period === p.key ? '#6366f1' : '#1e293b',
+              color: period === p.key ? '#fff' : '#e2e8f0',
             }}
           >
             {p.label}
