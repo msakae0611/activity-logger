@@ -78,7 +78,7 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
         >
           {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
-        <button onClick={onRemove} style={{ padding: '6px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#dc2626' }}>✕</button>
+        <button onClick={onRemove} style={{ padding: '6px 10px', background: '#3f1010', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#f87171' }}>✕</button>
       </div>
       {field.type === 'number' && (
         <input
@@ -119,7 +119,7 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
                   const next = (field.subFields ?? []).filter((_, i) => i !== idx)
                   onChange({ ...field, subFields: next })
                 }}
-                style={{ padding: '6px 10px', background: '#fee2e2', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#dc2626' }}
+                style={{ padding: '6px 10px', background: '#3f1010', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#f87171' }}
               >✕</button>
             </div>
           ))}
