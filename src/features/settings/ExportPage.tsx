@@ -47,7 +47,8 @@ export function ExportPage() {
         return
       }
 
-      const today = new Date().toLocaleDateString('sv-SE').replace(/-/g, '')
+      const d = new Date()
+      const today = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
       const content = buildCsvContent(selectedCategory, records)
       const filename = buildFilename(
         selectedCategory.name,
@@ -56,6 +57,8 @@ export function ExportPage() {
         today,
       )
       downloadCsv(content, filename)
+    } catch {
+      setError('エクスポートに失敗しました。もう一度お試しください。')
     } finally {
       setLoading(false)
     }
@@ -123,14 +126,14 @@ export function ExportPage() {
           <input
             type="date"
             value={fromDate}
-            onChange={e => setFromDate(e.target.value)}
+            onChange={e => { setFromDate(e.target.value); setError(null) }}
             style={inputStyle}
           />
           <span style={{ color: '#94a3b8', whiteSpace: 'nowrap', fontSize: 14 }}>〜</span>
           <input
             type="date"
             value={toDate}
-            onChange={e => setToDate(e.target.value)}
+            onChange={e => { setToDate(e.target.value); setError(null) }}
             style={inputStyle}
           />
         </div>
@@ -148,7 +151,8 @@ export function ExportPage() {
           background: !selectedId ? '#1e293b' : '#6366f1',
           color: !selectedId ? '#64748b' : '#fff',
           border: 'none', borderRadius: 8,
-          cursor: !selectedId ? 'default' : 'pointer',
+          cursor: (!selectedId || loading) ? 'default' : 'pointer',
+          opacity: loading ? 0.6 : 1,
           fontWeight: 700, fontSize: 16,
         }}
       >
