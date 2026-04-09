@@ -4,7 +4,7 @@ import type { Record as LogRecord } from '../../types'
 type ItemEntry = { name: string; total?: number; [subFieldKey: string]: unknown }
 
 function escapeCell(value: string): string {
-  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+  if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
     return '"' + value.replace(/"/g, '""') + '"'
   }
   return value
@@ -13,7 +13,7 @@ function escapeCell(value: string): string {
 function formatValue(value: unknown, field: FieldDefinition): string {
   if (value === null || value === undefined) return ''
   if (field.type === 'boolean') {
-    return value ? 'はい' : 'いいえ'
+    return value === true ? 'はい' : value === false ? 'いいえ' : ''
   }
   if (field.type === 'multi-select') {
     if (Array.isArray(value)) return value.join('|')
@@ -76,7 +76,7 @@ export function buildCsvContent(category: Category, records: LogRecord[]): strin
           ...subFields.map(sf => escapeCell(String(item[sf.key] ?? ''))),
         ]
 
-        if (itemListField.computedTotal) {
+        if (itemListField.computedTotal && subFields.length >= 2) {
           let total: string
           if (item.total !== undefined) {
             total = String(item.total)

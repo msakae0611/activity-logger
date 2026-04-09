@@ -179,6 +179,26 @@ describe('buildCsvContent', () => {
     expect(lines).toHaveLength(1)
   })
 
+  it('item-list: computedTotal=true でも subFields が1つなら合計列なし', () => {
+    const category = makeCategory({
+      fields: [{
+        key: 'exercise',
+        label: '種目',
+        type: 'item-list',
+        options: ['レッグプレス'],
+        subFields: [{ key: 'weight', label: '重さ' }],
+        computedTotal: true,
+      }],
+    })
+    const records = [makeRecord({
+      values: { exercise: [{ name: 'レッグプレス', weight: 80 }] },
+    })]
+    const csv = buildCsvContent(category, records)
+    const lines = csv.replace('\uFEFF', '').split('\n')
+    expect(lines[0]).toBe('日付,種目,重さ')      // 合計列なし
+    expect(lines[1]).toBe('2026-04-01,レッグプレス,80') // データ行も合計列なし
+  })
+
   it('UTF-8 BOM で始まる', () => {
     const category = makeCategory({ fields: [] })
     const csv = buildCsvContent(category, [])
