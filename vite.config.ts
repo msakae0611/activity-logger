@@ -12,7 +12,7 @@ export default defineConfig({
         short_name: 'ActivityLog',
         description: '目的別行動記録・分析アプリ',
         theme_color: '#6366f1',
-        background_color: '#ffffff',
+        background_color: '#0f172a',
         display: 'standalone',
         icons: [
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },

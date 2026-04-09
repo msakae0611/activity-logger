@@ -13,7 +13,7 @@ export function CategoryListPage() {
   )
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, background: '#0f172a', minHeight: '100vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>カテゴリ設定</h2>
         <button onClick={() => navigate('/settings/categories/new')} style={{ padding: '8px 14px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }} >

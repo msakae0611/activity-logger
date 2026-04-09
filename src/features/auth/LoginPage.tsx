@@ -54,6 +54,9 @@ export function LoginPage() {
       margin: '0 auto',
       padding: '48px 24px 40px',
       boxSizing: 'border-box',
+      background: '#0f172a',
+      minHeight: '100vh',
+      color: '#e2e8f0',
     }}>
       <p style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 8 }}>Activity Logger</p>
       <p style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginBottom: 24 }}>v{new Date('2026-04-08').toISOString().slice(0,10)}</p>

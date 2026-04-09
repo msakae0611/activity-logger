@@ -38,7 +38,7 @@ export function AnalyticsPage() {
   }
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, background: '#0f172a', minHeight: '100vh' }}>
       <h2 style={{ marginTop: 0, marginBottom: 12 }}>分析</h2>
 
       {/* Period selector */}

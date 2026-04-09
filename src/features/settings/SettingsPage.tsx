@@ -21,7 +21,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, background: '#0f172a', minHeight: '100vh' }}>
       <h2>設定</h2>
       <div onClick={() => navigate('/settings/categories')} style={menuItem}>
         <span>📂 カテゴリ設定</span>

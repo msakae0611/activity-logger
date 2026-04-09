@@ -95,7 +95,7 @@ export function RecordingPage() {
   }
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, background: '#0f172a', minHeight: '100vh' }}>
       <h2>記録</h2>
 
       {/* Category selector */}

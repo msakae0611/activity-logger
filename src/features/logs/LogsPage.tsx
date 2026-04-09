@@ -29,7 +29,7 @@ export function LogsPage() {
   const categoryMap = Object.fromEntries((categories ?? []).map(c => [c.id, c]))
 
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16, background: '#0f172a', minHeight: '100vh' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>ログ</h2>
         <div style={{ display: 'flex', background: '#1e293b', borderRadius: 8, padding: 2 }}>

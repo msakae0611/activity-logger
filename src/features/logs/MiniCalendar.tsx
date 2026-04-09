@@ -69,7 +69,7 @@ export function MiniCalendar({ userId, selectedDate, onDateSelect }: Props) {
   }
 
   return (
-    <div style={{ border: '3px solid #2e303a', borderRadius: 10, padding: 12 }}>
+    <div style={{ border: '3px solid #2e303a', borderRadius: 10, padding: 12, background: '#0f172a' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
         <button onClick={prevMonth} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#6366f1', padding: '0 8px' }}>‹</button>
         <span style={{ fontWeight: 700, fontSize: 14 }}>{year}年{month + 1}月</span>
