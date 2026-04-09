@@ -27,6 +27,10 @@ export function SettingsPage() {
         <span>📂 カテゴリ設定</span>
         <span style={{ color: '#64748b' }}>›</span>
       </div>
+      <div onClick={() => navigate('/settings/export')} style={menuItem}>
+        <span>📥 CSVエクスポート</span>
+        <span style={{ color: '#64748b' }}>›</span>
+      </div>
       <div onClick={handleSignOut} style={{ ...menuItem, marginTop: 24, color: '#f87171', borderColor: '#3f1e1e', background: '#1c1010' }}>
         <span>🚪 ログアウト</span>
       </div>

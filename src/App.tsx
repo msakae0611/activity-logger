@@ -10,6 +10,7 @@ import { CategoryEditorPage } from './features/categories/CategoryEditorPage'
 import { RecordingPage } from './features/recording/RecordingPage'
 import { LogsPage } from './features/logs/LogsPage'
 import { AnalyticsPage } from './features/analytics/AnalyticsPage'
+import { ExportPage } from './features/settings/ExportPage'
 
 const queryClient = new QueryClient()
 
@@ -28,6 +29,7 @@ function AppRoutes() {
           <Route path="/settings/categories" element={<CategoryListPage />} />
           <Route path="/settings/categories/new" element={<CategoryEditorPage />} />
           <Route path="/settings/categories/:id" element={<CategoryEditorPage />} />
+          <Route path="/settings/export" element={<ExportPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Layout>
