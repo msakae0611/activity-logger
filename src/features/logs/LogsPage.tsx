@@ -32,12 +32,12 @@ export function LogsPage() {
     <div style={{ padding: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>ログ</h2>
-        <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 8, padding: 2 }}>
+        <div style={{ display: 'flex', background: '#1e293b', borderRadius: 8, padding: 2 }}>
           {(['calendar', 'list'] as ViewMode[]).map(mode => (
             <button key={mode} onClick={() => setViewMode(mode)} style={{
               padding: '4px 14px', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600,
               background: viewMode === mode ? '#6366f1' : 'transparent',
-              color: viewMode === mode ? '#fff' : '#1e293b',
+              color: viewMode === mode ? '#fff' : '#e2e8f0',
             }}>
               {mode === 'calendar' ? '📅 カレンダー' : '📋 リスト'}
             </button>
@@ -49,7 +49,7 @@ export function LogsPage() {
         <CalendarView />
       ) : (
         <>
-          <select value={filterCategoryId} onChange={e => setFilterCategoryId(e.target.value)} style={{ width: '100%', padding: 8, marginBottom: 16, border: '1px solid #e2e8f0', borderRadius: 6 }}>
+          <select value={filterCategoryId} onChange={e => setFilterCategoryId(e.target.value)} style={{ width: '100%', padding: 8, marginBottom: 16, border: '1px solid #334155', borderRadius: 6, background: '#0f172a', color: '#e2e8f0' }}>
             <option value="">すべてのカテゴリ</option>
             {categories?.map(cat => <option key={cat.id} value={cat.id}>{cat.icon} {cat.name}</option>)}
           </select>
