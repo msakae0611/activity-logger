@@ -39,7 +39,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
             <label htmlFor={field.key} style={{ fontSize: 13, fontWeight: 600 }}>
               {field.label}{field.required && <span style={{ color: 'red' }}> *</span>}
             </label>
-            {field.unit && <span style={{ color: '#64748b', fontWeight: 400, fontSize: 13 }}>({field.unit})</span>}
+            {field.unit && <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: 13 }}>({field.unit})</span>}
           </div>
 
           {field.type === 'number' && (
