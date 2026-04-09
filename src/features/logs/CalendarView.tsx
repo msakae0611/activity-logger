@@ -79,7 +79,7 @@ export function CalendarView() {
       />
 
       {/* Day detail */}
-      <div style={{ marginTop: 16, borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
+      <div style={{ marginTop: 16, borderTop: '1px solid #334155', paddingTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
           <span style={{ fontWeight: 700, fontSize: 14 }}>
             {new Date(selectedDate + 'T12:00:00').toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })}
@@ -88,7 +88,7 @@ export function CalendarView() {
             {(selectedRecords?.length ?? 0) > 0 && (
               <button
                 onClick={() => { setEditingAll(e => !e); setAddingNew(false); setExpandedId(null) }}
-                style={{ padding: '4px 12px', background: editingAll ? '#6366f1' : '#e0e7ff', color: editingAll ? '#fff' : '#4f46e5', border: 'none', borderRadius: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
+                style={{ padding: '4px 12px', background: editingAll ? '#6366f1' : '#312e81', color: editingAll ? '#fff' : '#a5b4fc', border: 'none', borderRadius: 16, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}
               >✏️ 編集</button>
             )}
             <button
@@ -113,8 +113,8 @@ export function CalendarView() {
                 style={{
                   padding: '4px 10px', borderRadius: 20, border: 'none', cursor: 'pointer',
                   whiteSpace: 'nowrap', fontWeight: 700, fontSize: 12,
-                  background: isExpanded ? (cat?.color ?? '#6366f1') : '#f1f5f9',
-                  color: isExpanded ? '#fff' : '#334155',
+                  background: isExpanded ? (cat?.color ?? '#6366f1') : '#1e293b',
+                  color: isExpanded ? '#fff' : '#e2e8f0',
                 }}
               >
                 {cat?.icon} {cat?.name}
@@ -129,11 +129,11 @@ export function CalendarView() {
           return (
             <div key={record.id} style={{ marginBottom: 12 }}>
               {editingId === record.id ? (
-                <div style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 12px', borderLeft: `3px solid ${cat?.color ?? '#6366f1'}` }}>
+                <div style={{ background: '#1e293b', borderRadius: 8, padding: '10px 12px', borderLeft: `3px solid ${cat?.color ?? '#6366f1'}` }}>
                   <DynamicForm fields={cat?.fields ?? []} values={editValues} onChange={setEditValues} />
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={() => handleUpdate(record)} style={{ flex: 1, padding: '8px', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>保存</button>
-                    <button onClick={() => setEditingId(null)} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>キャンセル</button>
+                    <button onClick={() => setEditingId(null)} style={{ padding: '8px 16px', background: '#334155', color: '#e2e8f0', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>キャンセル</button>
                   </div>
                 </div>
               ) : (
@@ -141,7 +141,7 @@ export function CalendarView() {
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
                     {Object.entries(record.values).map(([k, v]) => {
                       const field = cat?.fields.find(f => f.key === k)
-                      const pillStyle = { padding: '4px 10px', borderRadius: 20, border: 'none', background: '#f1f5f9', color: '#334155', fontSize: 12, whiteSpace: 'nowrap' as const, cursor: 'default' as const }
+                      const pillStyle = { padding: '4px 10px', borderRadius: 20, border: 'none', background: '#1e293b', color: '#e2e8f0', fontSize: 12, whiteSpace: 'nowrap' as const, cursor: 'default' as const }
                       if (Array.isArray(v)) {
                         return v.map((item, i) => (
                           <button key={`${k}-${i}`} style={pillStyle}>
@@ -157,8 +157,8 @@ export function CalendarView() {
                     })}
                   </div>
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button onClick={() => startEdit(record)} style={{ background: '#e0e7ff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#4f46e5' }}>編集</button>
-                    <button onClick={() => deleteRecord(record.id)} style={{ background: '#fee2e2', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#dc2626' }}>削除</button>
+                    <button onClick={() => startEdit(record)} style={{ background: '#312e81', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#a5b4fc' }}>編集</button>
+                    <button onClick={() => deleteRecord(record.id)} style={{ background: '#3f1010', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#f87171' }}>削除</button>
                   </div>
                 </>
               )}
@@ -189,8 +189,8 @@ export function CalendarView() {
                   style={{
                     padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
                     whiteSpace: 'nowrap', fontWeight: 700, fontSize: 14,
-                    background: newCategoryId === c.id ? '#6366f1' : '#f1f5f9',
-                    color: newCategoryId === c.id ? '#fff' : '#334155',
+                    background: newCategoryId === c.id ? '#6366f1' : '#1e293b',
+                    color: newCategoryId === c.id ? '#fff' : '#e2e8f0',
                   }}
                 >
                   {c.icon} {c.name}
@@ -215,8 +215,8 @@ export function CalendarView() {
                         style={{
                           padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
                           whiteSpace: 'nowrap', fontWeight: 600, fontSize: 14,
-                          background: isSelected ? '#ec4899' : isFilled ? '#6366f1' : '#f1f5f9',
-                          color: isSelected || isFilled ? '#fff' : '#334155',
+                          background: isSelected ? '#ec4899' : isFilled ? '#6366f1' : '#1e293b',
+                          color: isSelected || isFilled ? '#fff' : '#e2e8f0',
                         }}
                       >
                         {field.label}
@@ -241,7 +241,7 @@ export function CalendarView() {
 
             <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
               <button onClick={handleAddNew} style={{ flex: 1, padding: '8px', background: '#ec4899', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer', fontWeight: 700, fontSize: 13 }}>💾 記録する</button>
-              <button onClick={() => { setAddingNew(false); setNewFieldKey(null) }} style={{ padding: '8px 16px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>キャンセル</button>
+              <button onClick={() => { setAddingNew(false); setNewFieldKey(null) }} style={{ padding: '8px 16px', background: '#334155', color: '#e2e8f0', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13 }}>キャンセル</button>
             </div>
             </>
             )}
