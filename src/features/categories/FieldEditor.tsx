@@ -38,7 +38,7 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
 
   return (
     <div style={{ border: '1px solid #334155', borderRadius: 8, padding: 12, marginBottom: 8 }}>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <button
             type="button"
@@ -71,15 +71,15 @@ export function FieldEditor({ field, onChange, onRemove, onMoveUp, onMoveDown, i
           onChange={e => onChange({ ...field, label: e.target.value })}
           style={{ flex: 1, minWidth: 0, padding: 6, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }}
         />
-        <select
-          value={field.type}
-          onChange={e => onChange({ ...field, type: e.target.value as FieldType })}
-          style={{ padding: 6, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0', maxWidth: 110, fontSize: 13 }}
-        >
-          {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-        </select>
         <button onClick={onRemove} style={{ padding: '6px 10px', background: '#3f1010', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 700, fontSize: 14, color: '#f87171' }}>✕</button>
       </div>
+      <select
+        value={field.type}
+        onChange={e => onChange({ ...field, type: e.target.value as FieldType })}
+        style={{ width: '100%', padding: 6, marginBottom: 8, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0', boxSizing: 'border-box' }}
+      >
+        {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+      </select>
       {field.type === 'number' && (
         <input
           placeholder="単位 (例: kg, h)"
