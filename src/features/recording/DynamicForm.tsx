@@ -43,16 +43,16 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
           </div>
 
           {field.type === 'number' && (
-            <input id={field.key} type="number" value={(values[field.key] as number) ?? ''} onChange={e => update(field.key, e.target.valueAsNumber)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }} />
+            <input id={field.key} type="number" value={(values[field.key] as number) ?? ''} onChange={e => update(field.key, e.target.valueAsNumber)} style={{ width: '100%', padding: 8, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }} />
           )}
           {field.type === 'text' && (
-            <input id={field.key} type="text" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }} />
+            <input id={field.key} type="text" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }} />
           )}
           {field.type === 'textarea' && (
-            <textarea id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} rows={3} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, resize: 'vertical', background: '#fff', color: '#1e293b' }} />
+            <textarea id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} rows={3} style={{ width: '100%', padding: 8, border: '1px solid #334155', borderRadius: 4, resize: 'vertical', background: '#0f172a', color: '#e2e8f0' }} />
           )}
           {field.type === 'select' && (
-            <select id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }}>
+            <select id={field.key} value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }}>
               <option value="">選択してください</option>
               {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
             </select>
@@ -71,7 +71,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
             </div>
           )}
           {field.type === 'duration' && (
-            <input id={field.key} type="time" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b' }} />
+            <input id={field.key} type="time" value={(values[field.key] as string) ?? ''} onChange={e => update(field.key, e.target.value)} style={{ width: '100%', padding: 8, border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0' }} />
           )}
           {field.type === 'multi-select' && (
             <div id={field.key} style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -160,18 +160,18 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                 {(field.options ?? []).filter(opt => fieldExpanded.has(opt)).map(itemName => {
                   const entry = entries.find(e => e.name === itemName) ?? { name: itemName }
                   return (
-                    <div key={itemName} style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 10, marginBottom: 8 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6, color: '#334155' }}>▼ {itemName}</div>
+                    <div key={itemName} style={{ border: '1px solid #334155', borderRadius: 8, padding: 10, marginBottom: 8 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6, color: '#e2e8f0' }}>▼ {itemName}</div>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         {field.subFields?.map(sf => (
                           <div key={sf.key} style={{ flex: 1, minWidth: 80 }}>
-                            <div style={{ fontSize: 12, color: '#64748b', marginBottom: 2 }}>{sf.label}</div>
+                            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{sf.label}</div>
                             <input
                               type="number"
                               placeholder={sf.label}
                               value={(entry[sf.key] as number) ?? ''}
                               onChange={e => updateEntry(itemName, sf.key, e.target.valueAsNumber)}
-                              style={{ width: '100%', padding: '6px 8px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b', boxSizing: 'border-box' }}
+                              style={{ width: '100%', padding: '6px 8px', border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0', boxSizing: 'border-box' }}
                             />
                           </div>
                         ))}
