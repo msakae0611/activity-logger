@@ -56,7 +56,7 @@ export function LoginPage() {
       boxSizing: 'border-box',
     }}>
       <p style={{ textAlign: 'center', fontWeight: 'bold', fontSize: 20, marginBottom: 8 }}>Activity Logger</p>
-      <p style={{ textAlign: 'center', fontSize: 11, color: '#888', marginBottom: 24 }}>v{new Date('2026-04-08').toISOString().slice(0,10)}</p>
+      <p style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginBottom: 24 }}>v{new Date('2026-04-08').toISOString().slice(0,10)}</p>
       <form onSubmit={handleSubmit} noValidate={false}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: 'block', textAlign: 'left', fontSize: 14 }}>
