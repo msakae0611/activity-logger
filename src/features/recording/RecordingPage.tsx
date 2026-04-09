@@ -138,7 +138,7 @@ export function RecordingPage() {
           <div style={{ marginBottom: 8 }}>
             <label style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 4 }}>記録</label>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', padding: '8px 10px', border: '1px solid #e2e8f0', borderRadius: 4, background: '#fff', color: '#1e293b', fontSize: 14, whiteSpace: 'nowrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '8px 10px', border: '1px solid #334155', borderRadius: 4, background: '#1e293b', color: '#e2e8f0', fontSize: 14, whiteSpace: 'nowrap' }}>
                 <span>{recordedAt}</span>
                 <span onClick={() => dateInputRef.current?.showPicker()} style={{ cursor: 'pointer', fontSize: 18, lineHeight: 1, marginLeft: 8 }}>📅</span>
                 <input
@@ -196,8 +196,8 @@ export function RecordingPage() {
                       style={{
                         padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
                         whiteSpace: 'nowrap', fontWeight: 600, fontSize: 14,
-                        background: isSelected ? '#ec4899' : isFilled ? '#6366f1' : '#f1f5f9',
-                        color: isSelected || isFilled ? '#fff' : '#334155',
+                        background: isSelected ? '#ec4899' : isFilled ? '#6366f1' : '#1e293b',
+                        color: isSelected || isFilled ? '#fff' : '#e2e8f0',
                       }}
                     >
                       {field.label}
@@ -220,7 +220,7 @@ export function RecordingPage() {
               {showExisting && (
                 <button
                   onClick={handleDelete}
-                  style={{ width: '100%', padding: '10px', marginTop: 8, background: '#fff', color: '#1e293b', border: '1px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+                  style={{ width: '100%', padding: '10px', marginTop: 8, background: '#1e293b', color: '#f87171', border: '1px solid #3f1010', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
                 >
                   削除
                 </button>
