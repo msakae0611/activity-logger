@@ -58,7 +58,7 @@ export function buildCsvContent(category: Category, records: LogRecord[]): strin
       '種目',
       ...subFields.map(sf => sf.label),
     ]
-    if (itemListField.computedTotal) {
+    if (itemListField.computedTotal && subFields.length >= 2) {
       headerCells.push('合計')
     }
     rows.push(headerCells.map(escapeCell).join(','))
@@ -127,6 +127,8 @@ export function downloadCsv(content: string, filename: string): void {
   const a = document.createElement('a')
   a.href = url
   a.download = filename
+  document.body.appendChild(a)
   a.click()
+  document.body.removeChild(a)
   URL.revokeObjectURL(url)
 }
