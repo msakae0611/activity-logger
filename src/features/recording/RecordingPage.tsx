@@ -112,8 +112,6 @@ export function RecordingPage() {
                 color: '#1e293b',
                 fontWeight: isSelected ? 700 : 400,
                 opacity: isSelected ? 1 : 0.55,
-                outline: isSelected ? `2px solid ${catColor}` : 'none',
-                outlineOffset: 2,
               }}>
               {cat.icon} {cat.name}
             </button>
