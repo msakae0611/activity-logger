@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { signOut } from '../../lib/supabase/auth'
 
 
 const menuItem = {
@@ -12,11 +11,13 @@ const menuItem = {
 export function SettingsPage() {
   const navigate = useNavigate()
 
-  const handleSignOut = async () => {
-    localStorage.removeItem('remember_me')
+  const handleSignOut = () => {
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('sb-')) localStorage.removeItem(key)
+    })
+    localStorage.setItem('remember_me', 'false')
     sessionStorage.removeItem('session_active')
-    await signOut().catch(() => {})
-    // SIGNED_OUT イベントが useAuth に伝わり、user=null → LoginPage が自動表示される
+    window.location.reload()
   }
 
   return (
