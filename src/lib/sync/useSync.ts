@@ -43,22 +43,29 @@ export function useSync() {
 
   // flush内でセッションを直接確認することで、authedRefのタイミング問題を回避
   const flush = async () => {
+    // フラグを最初にチェック＆セット（getSession前に排他制御）
     if (flushingRef.current) {
       console.log('[useSync] flush skipped: already flushing')
       return
     }
-
-    console.log('[useSync] flush: checking session...')
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      console.log('[useSync] flush skipped: no session')
-      return
-    }
-    console.log('[useSync] flush: session ok, starting...')
-
     flushingRef.current = true
     setSyncing(true)
+
     try {
+      console.log('[useSync] flush: checking session...')
+      const sessionResult = await Promise.race([
+        supabase.auth.getSession(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('getSession timeout')), 5000)
+        ),
+      ])
+      const session = sessionResult.data.session
+      console.log('[useSync] flush: session =', session ? 'ok' : 'null')
+      if (!session) {
+        console.log('[useSync] flush skipped: no session')
+        return
+      }
+
       const result = await flushSyncQueue(supabaseSync)
       console.log('[useSync] flush complete:', result)
     } catch (err) {
