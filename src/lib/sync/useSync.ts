@@ -10,7 +10,13 @@ async function supabaseSync(table: SyncTable, operation: SyncOperation, data: { 
     const { error } = await supabase.from(table).delete().eq('id', data.id)
     return { error }
   }
-  const { error } = await supabase.from(table).upsert(data)
+  if (operation === 'update') {
+    const { id, ...rest } = data
+    const { error } = await supabase.from(table).update(rest).eq('id', id)
+    return { error }
+  }
+  // insert
+  const { error } = await supabase.from(table).insert(data)
   return { error }
 }
 
