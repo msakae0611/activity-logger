@@ -162,56 +162,59 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                   const summary = entry ? buildSummary(entry, field) : ''
 
                   return (
-                    <div key={opt} style={{ marginBottom: 6, display: 'flex', gap: 4, alignItems: 'flex-start' }}>
-                      <button
-                        type="button"
-                        onClick={() => toggleItem(opt)}
-                        style={{
-                          flex: 1,
-                          padding: '10px 12px',
-                          background: isSelected ? '#ec4899' : '#1e293b',
-                          border: isSelected ? 'none' : '1px solid #334155',
-                          borderRadius: isExpanded ? '8px 8px 0 0' : '8px',
-                          color: isSelected ? '#fff' : '#94a3b8',
-                          fontWeight: isSelected ? 700 : 400,
-                          fontSize: 13,
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          outline: 'none',
-                          userSelect: 'none',
-                          boxSizing: 'border-box',
-                          minWidth: 0,
-                        }}
-                      >
-                        <span>{opt}</span>
-                        {isSelected && (
-                          <span style={{ fontSize: 11, opacity: 0.85, flexShrink: 0, marginLeft: 8 }}>
-                            {summary ? `${summary} ` : ''}{isExpanded ? '▲' : '▼'}
-                          </span>
-                        )}
-                      </button>
-                      {isSelected && (
+                    <div key={opt} style={{ marginBottom: 6 }}>
+                      {/* 1行目: 項目ボタン + 削除ボタン */}
+                      <div style={{ display: 'flex', gap: 4 }}>
                         <button
                           type="button"
-                          onClick={() => deselectItem(opt)}
-                          aria-label={`${opt}を削除`}
+                          onClick={() => toggleItem(opt)}
                           style={{
-                            padding: '10px 11px',
-                            background: '#3f1e1e',
-                            border: '1px solid #7f1d1d',
-                            borderRadius: 8,
-                            color: '#f87171',
-                            fontSize: 14,
+                            flex: 1,
+                            padding: '10px 12px',
+                            background: isSelected ? '#ec4899' : '#1e293b',
+                            border: isSelected ? 'none' : '1px solid #334155',
+                            borderRadius: isExpanded ? '8px 8px 0 0' : '8px',
+                            color: isSelected ? '#fff' : '#94a3b8',
+                            fontWeight: isSelected ? 700 : 400,
+                            fontSize: 13,
+                            textAlign: 'left',
                             cursor: 'pointer',
-                            flexShrink: 0,
-                            lineHeight: 1,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            outline: 'none',
+                            userSelect: 'none',
+                            boxSizing: 'border-box',
+                            minWidth: 0,
                           }}
-                        >×</button>
-                      )}
-
+                        >
+                          <span>{opt}</span>
+                          {isSelected && (
+                            <span style={{ fontSize: 11, opacity: 0.85, flexShrink: 0, marginLeft: 8 }}>
+                              {summary ? `${summary} ` : ''}{isExpanded ? '▲' : '▼'}
+                            </span>
+                          )}
+                        </button>
+                        {isSelected && (
+                          <button
+                            type="button"
+                            onClick={() => deselectItem(opt)}
+                            aria-label={`${opt}を削除`}
+                            style={{
+                              padding: '10px 11px',
+                              background: '#3f1e1e',
+                              border: '1px solid #7f1d1d',
+                              borderRadius: isExpanded ? '8px 8px 0 0' : '8px',
+                              color: '#f87171',
+                              fontSize: 14,
+                              cursor: 'pointer',
+                              flexShrink: 0,
+                              lineHeight: 1,
+                            }}
+                          >×</button>
+                        )}
+                      </div>
+                      {/* 2行目: 展開時の入力欄 */}
                       {isExpanded && (
                         <div style={{ background: '#1e293b', borderRadius: '0 0 8px 8px', padding: '8px 10px' }}>
                           {/* ラベル行 */}
