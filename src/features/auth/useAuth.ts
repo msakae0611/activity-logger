@@ -62,9 +62,9 @@ export function useAuth() {
       setUser(session?.user ?? null)
       setLoading(false)
 
-      if (event === 'SIGNED_IN' && session?.user) {
-        sessionStorage.setItem('session_active', 'true')
-        await seedLocalDb(session.user.id).catch(() => {})
+      if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        if (event === 'SIGNED_IN') sessionStorage.setItem('session_active', 'true')
+        await seedLocalDb(session.user.id).catch(err => console.error('[seedLocalDb] failed:', err))
       }
     })
 
