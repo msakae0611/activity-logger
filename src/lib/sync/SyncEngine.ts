@@ -3,28 +3,46 @@ import type { SyncTable, SyncOperation } from '../../types'
 
 type SyncFn = (table: SyncTable, operation: SyncOperation, data: { id: string } & Record<string, unknown>) => Promise<{ error: unknown }>
 
+// Dexie専用フィールドでSupabaseに送ってはいけないキー
+const LOCAL_ONLY_FIELDS: Record<string, string[]> = {
+  records: ['synced'],
+}
+
+function stripLocalFields(table: string, data: Record<string, unknown>): Record<string, unknown> {
+  const keys = LOCAL_ONLY_FIELDS[table]
+  if (!keys) return data
+  const result = { ...data }
+  for (const key of keys) delete result[key]
+  return result
+}
+
 export async function flushSyncQueue(syncFn: SyncFn): Promise<{ processed: number; errors: number }> {
+  console.log('[SyncEngine] flushSyncQueue start')
   const queue = await db.syncQueue.orderBy('created_at').toArray()
+  console.log('[SyncEngine] queue length:', queue.length)
   if (queue.length === 0) return { processed: 0, errors: 0 }
 
   let processed = 0
   let errors = 0
 
   for (const item of queue) {
-    const payload = JSON.parse(item.payload)
+    console.log('[SyncEngine] processing item:', { table: item.table, operation: item.operation, id: item.id })
+    let payload = JSON.parse(item.payload)
+    payload = stripLocalFields(item.table, payload)
+
+    console.log('[SyncEngine] calling syncFn...')
     const { error } = await syncFn(item.table, item.operation, payload)
+    console.log('[SyncEngine] syncFn returned, error:', error ?? null)
 
     if (error) {
       const e = error as { message?: string; code?: string; details?: string; hint?: string }
       console.error('[SyncEngine] sync error:', {
         table: item.table,
         operation: item.operation,
-        payload: item.payload,
         message: e.message,
         code: e.code,
         details: e.details,
         hint: e.hint,
-        raw: error,
       })
       errors++
       continue
@@ -39,5 +57,6 @@ export async function flushSyncQueue(syncFn: SyncFn): Promise<{ processed: numbe
     processed++
   }
 
+  console.log('[SyncEngine] flushSyncQueue done:', { processed, errors })
   return { processed, errors }
 }
