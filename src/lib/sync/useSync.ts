@@ -18,6 +18,7 @@ export function useSync() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [syncing, setSyncing] = useState(false)
   const flushingRef = useRef(false)
+  const authedRef = useRef(false)
 
   const pendingCount = useLiveQuery(
     () => db.syncQueue.count(),
@@ -35,36 +36,48 @@ export function useSync() {
     }
   }, [])
 
-  // オンライン復帰時・マウント時にキューをフラッシュ
-  useEffect(() => {
-    if (!isOnline) return
-    const flush = async () => {
-      if (flushingRef.current) return
-      flushingRef.current = true
-      setSyncing(true)
-      await flushSyncQueue(supabaseSync)
-      setSyncing(false)
-      flushingRef.current = false
-    }
-    flush()
-  }, [isOnline])
+  const flush = async () => {
+    if (flushingRef.current) return
+    flushingRef.current = true
+    setSyncing(true)
+    const result = await flushSyncQueue(supabaseSync)
+    console.log('[useSync] flush complete:', result)
+    setSyncing(false)
+    flushingRef.current = false
+  }
 
-  // ログイン後（SIGNED_IN）にも保留中の操作をフラッシュ
+  // ログイン状態の追跡 + ログイン後にキューをフラッシュ
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === 'SIGNED_IN' && isOnline) {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && isOnline) {
+        authedRef.current = true
         // seedLocalDb完了後にフラッシュするため少し待機
-        await new Promise(r => setTimeout(r, 500))
-        if (flushingRef.current) return
-        flushingRef.current = true
-        setSyncing(true)
-        await flushSyncQueue(supabaseSync)
-        setSyncing(false)
-        flushingRef.current = false
+        await new Promise(r => setTimeout(r, 800))
+        await flush()
+      } else if (event === 'SIGNED_OUT') {
+        authedRef.current = false
       }
     })
     return () => subscription.unsubscribe()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline])
+
+  // オンライン復帰時にキューをフラッシュ（認証済みの場合のみ）
+  useEffect(() => {
+    if (!isOnline) return
+    if (!authedRef.current) return
+    flush()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline])
+
+  // キューに新しいアイテムが追加されたときにフラッシュ（オンライン＆認証済みの場合）
+  useEffect(() => {
+    if (pendingCount === 0) return
+    if (!isOnline) return
+    if (!authedRef.current) return
+    flush()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingCount, isOnline])
 
   return { isOnline, syncing, pendingCount }
 }
