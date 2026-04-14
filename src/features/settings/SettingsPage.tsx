@@ -13,10 +13,10 @@ export function SettingsPage() {
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
-    localStorage.setItem('remember_me', 'false')
+    localStorage.removeItem('remember_me')
     sessionStorage.removeItem('session_active')
     await signOut().catch(() => {})
-    window.location.reload()
+    // SIGNED_OUT イベントが useAuth に伝わり、user=null → LoginPage が自動表示される
   }
 
   return (

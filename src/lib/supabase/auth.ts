@@ -13,7 +13,7 @@ export async function signUp(email: string, password: string) {
 }
 
 export async function signOut() {
-  await supabase.auth.signOut({ scope: 'local' })
+  await supabase.auth.signOut()
 }
 
 export async function resetPassword(email: string) {
