@@ -59,12 +59,22 @@ export function useAuth() {
         }
       }
 
+      if (event === 'SIGNED_OUT') {
+        // ログアウト時にローカルDBのデータをクリア
+        await db.records.clear().catch(() => {})
+        await db.categories.clear().catch(() => {})
+        await db.syncQueue.clear().catch(() => {})
+        await db.dashboards.clear().catch(() => {})
+      }
+
       setUser(session?.user ?? null)
       setLoading(false)
 
       if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
         if (event === 'SIGNED_IN') sessionStorage.setItem('session_active', 'true')
+        console.log('[useAuth] seeding local DB for user:', session.user.id)
         await seedLocalDb(session.user.id).catch(err => console.error('[seedLocalDb] failed:', err))
+        console.log('[useAuth] seedLocalDb complete')
       }
     })
 

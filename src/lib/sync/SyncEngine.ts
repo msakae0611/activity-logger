@@ -15,7 +15,12 @@ export async function flushSyncQueue(syncFn: SyncFn): Promise<{ processed: numbe
     const { error } = await syncFn(item.table, item.operation, payload)
 
     if (error) {
-      console.error('[SyncEngine] sync error:', { table: item.table, operation: item.operation, error })
+      console.error('[SyncEngine] sync error:', {
+        table: item.table,
+        operation: item.operation,
+        payload: item.payload,
+        error,
+      })
       errors++
       continue
     }

@@ -1,0 +1,79 @@
+<h2>アコーディオン式 — 入力行を1行に</h2>
+<p class="subtitle">重量・回数・合計を同じ行にまとめました。これでよければ承認してください</p>
+
+<div style="max-width:380px;margin:0 auto">
+  <div style="background:#0f172a;border-radius:10px;padding:12px;font-size:13px">
+
+    <!-- Item 1: Selected + expanded -->
+    <div style="margin-bottom:6px">
+      <button style="width:100%;padding:10px 12px;background:#ec4899;border:none;border-radius:8px 8px 0 0;color:#fff;font-weight:700;font-size:13px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <span>🏋️ ベンチプレス</span>
+        <span style="font-size:12px;opacity:0.85">▲</span>
+      </button>
+      <!-- Expanded: 1 row with label + weight + reps + total -->
+      <div style="background:#1e293b;border-radius:0 0 8px 8px;padding:8px 10px">
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr auto;gap:6px;align-items:center">
+          <!-- Labels row -->
+          <span style="font-size:11px;color:#64748b"></span>
+          <span style="font-size:11px;color:#64748b;text-align:center">重量 (kg)</span>
+          <span style="font-size:11px;color:#64748b;text-align:center">回数</span>
+          <span style="font-size:11px;color:#64748b;text-align:right;min-width:48px">合計</span>
+        </div>
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr auto;gap:6px;align-items:center;margin-top:4px">
+          <span style="font-size:18px">→</span>
+          <input type="number" value="60" style="padding:8px 6px;border:1px solid #334155;border-radius:6px;background:#0f172a;color:#e2e8f0;font-size:15px;text-align:center;width:100%;box-sizing:border-box" readonly />
+          <input type="number" value="10" style="padding:8px 6px;border:1px solid #334155;border-radius:6px;background:#0f172a;color:#e2e8f0;font-size:15px;text-align:center;width:100%;box-sizing:border-box" readonly />
+          <span style="font-size:16px;font-weight:700;color:#6366f1;text-align:right;min-width:48px">600</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 2: Selected + collapsed (summary in button) -->
+    <div style="margin-bottom:6px">
+      <button style="width:100%;padding:10px 12px;background:#be185d;border:none;border-radius:8px;color:#fff;font-weight:700;font-size:13px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <span>🦵 スクワット</span>
+        <span style="font-size:11px;opacity:0.85">80kg × 8回 = <strong>640</strong> ▼</span>
+      </button>
+    </div>
+
+    <!-- Item 3: Unselected -->
+    <div style="margin-bottom:6px">
+      <button style="width:100%;padding:10px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-size:13px;text-align:left;cursor:pointer">
+        💀 デッドリフト
+      </button>
+    </div>
+
+    <!-- Item 4: Unselected -->
+    <div>
+      <button style="width:100%;padding:10px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-size:13px;text-align:left;cursor:pointer">
+        💪 懸垂
+      </button>
+    </div>
+
+  </div>
+
+  <div style="margin-top:14px;padding:12px;background:#1e293b;border-radius:8px;font-size:12px;color:#94a3b8;line-height:1.7">
+    <strong style="color:#e2e8f0">動作イメージ：</strong><br>
+    ・未選択ボタン → タップで展開（入力欄が直下に出る）<br>
+    ・入力後 → ボタンを再タップで折りたたみ（サマリーをボタン内に表示）<br>
+    ・折りたたみ後 → タップで再展開して修正可能<br>
+    ・ピンク状態のボタンを長押し or ✕ で削除
+  </div>
+</div>
+
+<div class="options" style="margin-top:20px">
+  <div class="option" data-choice="approve" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>このデザインで進める</h3>
+      <p>実装に移ります</p>
+    </div>
+  </div>
+  <div class="option" data-choice="revise" onclick="toggleSelect(this)">
+    <div class="letter">↩</div>
+    <div class="content">
+      <h3>もう少し調整したい</h3>
+      <p>ターミナルで変更点を教えてください</p>
+    </div>
+  </div>
+</div>

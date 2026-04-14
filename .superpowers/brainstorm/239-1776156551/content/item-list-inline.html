@@ -1,0 +1,124 @@
+<h2>改訂案：種目ボタン直下に入力欄</h2>
+<p class="subtitle">ボタンと入力欄を分離せず、種目ごとにまとめて表示する2パターン</p>
+
+<div class="options" data-multiselect>
+
+  <!-- Option A: Accordion -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>アコーディオン式</h3>
+      <p style="color:#94a3b8;font-size:13px;margin-bottom:12px">種目名ボタンをタップ → その直下に入力欄が展開。上に戻らず下へ進むだけ</p>
+
+      <div style="background:#0f172a;border-radius:8px;padding:10px;font-size:13px">
+
+        <!-- Item 1: Selected + expanded -->
+        <div style="margin-bottom:6px">
+          <button style="width:100%;padding:9px 12px;background:#ec4899;border:none;border-radius:8px 8px 0 0;color:#fff;font-weight:700;font-size:13px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+            <span>🏋️ ベンチプレス</span>
+            <span style="font-size:11px;opacity:0.8">重量60kg × 10回 = 600 ▲</span>
+          </button>
+          <div style="background:#1e293b;border-radius:0 0 8px 8px;padding:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <div style="font-size:11px;color:#94a3b8;margin-bottom:4px">重量 (kg)</div>
+              <input type="number" value="60" style="width:100%;padding:7px 8px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#e2e8f0;font-size:14px;box-sizing:border-box;text-align:center" readonly />
+            </div>
+            <div>
+              <div style="font-size:11px;color:#94a3b8;margin-bottom:4px">回数</div>
+              <input type="number" value="10" style="width:100%;padding:7px 8px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#e2e8f0;font-size:14px;box-sizing:border-box;text-align:center" readonly />
+            </div>
+            <div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding-top:4px">
+              <span style="font-size:12px;color:#64748b">合計ボリューム</span>
+              <span style="font-size:16px;font-weight:700;color:#6366f1">600</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 2: Selected + collapsed (summary shown in button) -->
+        <div style="margin-bottom:6px">
+          <button style="width:100%;padding:9px 12px;background:#be185d;border:none;border-radius:8px;color:#fff;font-weight:700;font-size:13px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+            <span>🦵 スクワット</span>
+            <span style="font-size:11px;opacity:0.8">80kg × 8回 = 640 ▼</span>
+          </button>
+        </div>
+
+        <!-- Item 3: Unselected -->
+        <div style="margin-bottom:6px">
+          <button style="width:100%;padding:9px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-size:13px;text-align:left;cursor:pointer">
+            💀 デッドリフト
+          </button>
+        </div>
+
+        <!-- Item 4: Unselected -->
+        <div>
+          <button style="width:100%;padding:9px 12px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#94a3b8;font-size:13px;text-align:left;cursor:pointer">
+            💪 懸垂
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:#064e3b;color:#6ee7b7;padding:3px 8px;border-radius:4px;font-size:11px">上下の行き来なし</span>
+        <span style="background:#064e3b;color:#6ee7b7;padding:3px 8px;border-radius:4px;font-size:11px">入力済みは畳んでサマリー表示</span>
+        <span style="background:#064e3b;color:#6ee7b7;padding:3px 8px;border-radius:4px;font-size:11px">長い項目名もOK</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Inline compact -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>インライン式（1行完結）</h3>
+      <p style="color:#94a3b8;font-size:13px;margin-bottom:12px">種目名の右に入力欄を横並びで配置。タップで行をアクティブ化</p>
+
+      <div style="background:#0f172a;border-radius:8px;padding:10px;font-size:13px">
+
+        <!-- Header -->
+        <div style="display:grid;grid-template-columns:1fr 52px 52px 48px 28px;gap:4px;margin-bottom:6px;padding:0 4px">
+          <span style="font-size:11px;color:#64748b">種目</span>
+          <span style="font-size:11px;color:#64748b;text-align:center">重量</span>
+          <span style="font-size:11px;color:#64748b;text-align:center">回数</span>
+          <span style="font-size:11px;color:#64748b;text-align:center">合計</span>
+          <span></span>
+        </div>
+
+        <!-- Row 1: selected, filled -->
+        <div style="display:grid;grid-template-columns:1fr 52px 52px 48px 28px;gap:4px;margin-bottom:4px;background:#1e293b;border-radius:8px;padding:6px 4px;align-items:center;border-left:3px solid #ec4899">
+          <span style="color:#fff;font-size:12px;font-weight:600">ベンチプレス</span>
+          <input type="number" value="60" style="padding:5px 3px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#e2e8f0;font-size:12px;text-align:center;width:100%;box-sizing:border-box" readonly />
+          <input type="number" value="10" style="padding:5px 3px;border:1px solid #334155;border-radius:4px;background:#0f172a;color:#e2e8f0;font-size:12px;text-align:center;width:100%;box-sizing:border-box" readonly />
+          <span style="color:#6366f1;font-weight:700;font-size:12px;text-align:center">600</span>
+          <span style="color:#ef4444;text-align:center;font-size:14px;cursor:pointer">×</span>
+        </div>
+
+        <!-- Row 2: selected, empty -->
+        <div style="display:grid;grid-template-columns:1fr 52px 52px 48px 28px;gap:4px;margin-bottom:4px;background:#1e293b;border-radius:8px;padding:6px 4px;align-items:center;border-left:3px solid #ec4899">
+          <span style="color:#fff;font-size:12px;font-weight:600">スクワット</span>
+          <input type="number" placeholder="kg" style="padding:5px 3px;border:1px solid #475569;border-radius:4px;background:#0f172a;color:#94a3b8;font-size:12px;text-align:center;width:100%;box-sizing:border-box" readonly />
+          <input type="number" placeholder="回" style="padding:5px 3px;border:1px solid #475569;border-radius:4px;background:#0f172a;color:#94a3b8;font-size:12px;text-align:center;width:100%;box-sizing:border-box" readonly />
+          <span style="color:#475569;font-size:12px;text-align:center">—</span>
+          <span style="color:#ef4444;text-align:center;font-size:14px;cursor:pointer">×</span>
+        </div>
+
+        <!-- Unselected options as small buttons -->
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding-top:8px;border-top:1px solid #334155">
+          <span style="font-size:11px;color:#64748b;align-self:center;margin-right:4px">追加：</span>
+          <button style="padding:4px 10px;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#94a3b8;font-size:12px;cursor:pointer">+ デッドリフト</button>
+          <button style="padding:4px 10px;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#94a3b8;font-size:12px;cursor:pointer">+ 懸垂</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <span style="background:#064e3b;color:#6ee7b7;padding:3px 8px;border-radius:4px;font-size:11px">最もコンパクト</span>
+        <span style="background:#064e3b;color:#6ee7b7;padding:3px 8px;border-radius:4px;font-size:11px">全選択項目が常時見える</span>
+        <span style="background:#1e1b4b;color:#a5b4fc;padding:3px 8px;border-radius:4px;font-size:11px">項目名が長いと窮屈になりうる</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:16px;padding:12px;background:#1e293b;border-radius:8px;font-size:13px;color:#94a3b8">
+  <strong style="color:#e2e8f0">共通点：</strong> どちらも「ボタンと入力欄が離れない」設計。上に戻らず、縦スクロールだけで完結します。
+</div>
