@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { DynamicForm } from '../../../features/recording/DynamicForm'
@@ -87,19 +87,14 @@ describe('DynamicForm - item-list', () => {
     expect(screen.queryByPlaceholderText('レベル')).not.toBeInTheDocument()
   })
 
-  it('折りたたみ中のボタンを長押しで選択解除する', () => {
-    vi.useFakeTimers()
+  it('×ボタンをクリックで選択解除する', async () => {
     const onChange = vi.fn()
     const values = {
       machines: [{ name: 'レッグプレス', weight: 30, reps: 15, total: 450 }],
     }
     render(<DynamicForm fields={[itemListField]} values={values} onChange={onChange} />)
-    // 初期状態: 選択済みかつ折りたたみ
-    const btn = screen.getByRole('button', { name: /レッグプレス/ })
-    fireEvent.pointerDown(btn)
-    vi.advanceTimersByTime(500)
+    await userEvent.click(screen.getByRole('button', { name: 'レッグプレスを削除' }))
     expect(onChange).toHaveBeenCalledWith({ machines: [] })
-    vi.useRealTimers()
   })
 
   it('折りたたみ時にサマリー文字列を表示する', () => {

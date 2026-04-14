@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FieldDefinition } from '../../types'
 
 interface DynamicFormProps {
@@ -27,8 +27,6 @@ function buildSummary(entry: ItemEntry, field: FieldDefinition): string {
 
 export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
   const [expandedItems, setExpandedItems] = useState<Record<string, Set<string>>>({})
-  const longPressTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
-  const longPressFired = useRef<Set<string>>(new Set())
 
   // expandedItems cleanup: clear sets when parent resets item-list entries to empty
   useEffect(() => {
@@ -162,31 +160,14 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                   const isSelected = !!entry
                   const isExpanded = fieldExpanded.has(opt)
                   const summary = entry ? buildSummary(entry, field) : ''
-                  const pressKey = `${field.key}:${opt}`
 
                   return (
-                    <div key={opt} style={{ marginBottom: 6 }}>
+                    <div key={opt} style={{ marginBottom: 6, display: 'flex', gap: 4, alignItems: 'flex-start' }}>
                       <button
                         type="button"
-                        onClick={() => {
-                          if (longPressFired.current.has(pressKey)) {
-                            longPressFired.current.delete(pressKey)
-                            return
-                          }
-                          toggleItem(opt)
-                        }}
-                        onPointerDown={() => {
-                          if (isSelected && !isExpanded) {
-                            longPressTimers.current[pressKey] = setTimeout(() => {
-                              longPressFired.current.add(pressKey)
-                              deselectItem(opt)
-                            }, 500)
-                          }
-                        }}
-                        onPointerUp={() => clearTimeout(longPressTimers.current[pressKey])}
-                        onPointerLeave={() => clearTimeout(longPressTimers.current[pressKey])}
+                        onClick={() => toggleItem(opt)}
                         style={{
-                          width: '100%',
+                          flex: 1,
                           padding: '10px 12px',
                           background: isSelected ? '#ec4899' : '#1e293b',
                           border: isSelected ? 'none' : '1px solid #334155',
@@ -202,6 +183,7 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                           outline: 'none',
                           userSelect: 'none',
                           boxSizing: 'border-box',
+                          minWidth: 0,
                         }}
                       >
                         <span>{opt}</span>
@@ -211,6 +193,24 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                           </span>
                         )}
                       </button>
+                      {isSelected && (
+                        <button
+                          type="button"
+                          onClick={() => deselectItem(opt)}
+                          aria-label={`${opt}を削除`}
+                          style={{
+                            padding: '10px 11px',
+                            background: '#3f1e1e',
+                            border: '1px solid #7f1d1d',
+                            borderRadius: 8,
+                            color: '#f87171',
+                            fontSize: 14,
+                            cursor: 'pointer',
+                            flexShrink: 0,
+                            lineHeight: 1,
+                          }}
+                        >×</button>
+                      )}
 
                       {isExpanded && (
                         <div style={{ background: '#1e293b', borderRadius: '0 0 8px 8px', padding: '8px 10px' }}>

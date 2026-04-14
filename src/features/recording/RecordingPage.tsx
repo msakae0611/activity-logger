@@ -217,10 +217,10 @@ export function RecordingPage() {
 
               {showExisting && (
                 <button
-                  onClick={handleDelete}
+                  onClick={() => { if (window.confirm(`「${selectedCategory?.name}」${dateKey} の記録をすべて削除しますか？`)) handleDelete() }}
                   style={{ width: '100%', padding: '10px', marginTop: 8, background: '#1e293b', color: '#f87171', border: '1px solid #3f1010', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
                 >
-                  削除
+                  🗑️ この日の記録を削除
                 </button>
               )}
               <button onClick={handleSave} style={{ width: '100%', padding: 14, background: '#ec4899', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700, fontSize: 16, marginTop: 8 }}>
