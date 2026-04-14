@@ -2,16 +2,45 @@ import { useEffect, useState } from 'react'
 import type { User } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase/client'
 import { db } from '../../lib/db/db'
+import type { Category, Record as LogRecord, Dashboard } from '../../types'
 
 async function seedLocalDb(userId: string) {
-  const [cats, recs, dashes] = await Promise.all([
+  // Promise.allSettled: クエリを独立して実行し、一つが失敗しても他に影響しない
+  const [catsResult, recsResult, dashesResult] = await Promise.allSettled([
     supabase.from('categories').select('*').eq('user_id', userId),
     supabase.from('records').select('*').eq('user_id', userId),
     supabase.from('dashboards').select('*').eq('user_id', userId),
   ])
-  if (cats.data?.length) await db.categories.bulkPut(cats.data)
-  if (recs.data?.length) await db.records.bulkPut(recs.data.map(r => ({ ...r, synced: true })))
-  if (dashes.data?.length) await db.dashboards.bulkPut(dashes.data)
+
+  // カテゴリ: フル同期（Supabaseにないローカルエントリを削除 + upsert）
+  if (catsResult.status === 'fulfilled' && !catsResult.value.error) {
+    const remoteCats = (catsResult.value.data ?? []) as Category[]
+    const remoteIds = new Set(remoteCats.map(c => c.id))
+    const localCats = await db.categories.where('user_id').equals(userId).toArray()
+    const toDelete = localCats.filter(c => !remoteIds.has(c.id)).map(c => c.id)
+    await db.transaction('rw', db.categories, async () => {
+      if (toDelete.length) await db.categories.bulkDelete(toDelete)
+      if (remoteCats.length) await db.categories.bulkPut(remoteCats)
+    })
+  }
+
+  // レコード: upsertのみ（未同期のオフラインレコードを保持するため削除しない）
+  if (recsResult.status === 'fulfilled' && !recsResult.value.error && recsResult.value.data?.length) {
+    const remoteRecs = recsResult.value.data as LogRecord[]
+    await db.records.bulkPut(remoteRecs.map(r => ({ ...r, synced: true })))
+  }
+
+  // ダッシュボード: フル同期
+  if (dashesResult.status === 'fulfilled' && !dashesResult.value.error) {
+    const remoteDashes = (dashesResult.value.data ?? []) as Dashboard[]
+    const remoteIds = new Set(remoteDashes.map(d => d.id))
+    const localDashes = await db.dashboards.where('user_id').equals(userId).toArray()
+    const toDelete = localDashes.filter(d => !remoteIds.has(d.id)).map(d => d.id)
+    await db.transaction('rw', db.dashboards, async () => {
+      if (toDelete.length) await db.dashboards.bulkDelete(toDelete)
+      if (remoteDashes.length) await db.dashboards.bulkPut(remoteDashes)
+    })
+  }
 }
 
 export function useAuth() {

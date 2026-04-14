@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db'
 import { flushSyncQueue } from './SyncEngine'
@@ -17,6 +17,7 @@ async function supabaseSync(table: SyncTable, operation: SyncOperation, data: { 
 export function useSync() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [syncing, setSyncing] = useState(false)
+  const flushingRef = useRef(false)
 
   const pendingCount = useLiveQuery(
     () => db.syncQueue.count(),
@@ -34,14 +35,35 @@ export function useSync() {
     }
   }, [])
 
+  // オンライン復帰時・マウント時にキューをフラッシュ
   useEffect(() => {
     if (!isOnline) return
     const flush = async () => {
+      if (flushingRef.current) return
+      flushingRef.current = true
       setSyncing(true)
       await flushSyncQueue(supabaseSync)
       setSyncing(false)
+      flushingRef.current = false
     }
     flush()
+  }, [isOnline])
+
+  // ログイン後（SIGNED_IN）にも保留中の操作をフラッシュ
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'SIGNED_IN' && isOnline) {
+        // seedLocalDb完了後にフラッシュするため少し待機
+        await new Promise(r => setTimeout(r, 500))
+        if (flushingRef.current) return
+        flushingRef.current = true
+        setSyncing(true)
+        await flushSyncQueue(supabaseSync)
+        setSyncing(false)
+        flushingRef.current = false
+      }
+    })
+    return () => subscription.unsubscribe()
   }, [isOnline])
 
   return { isOnline, syncing, pendingCount }

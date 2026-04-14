@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { signOut } from '../../lib/supabase/auth'
 
 
 const menuItem = {
@@ -11,12 +12,10 @@ const menuItem = {
 export function SettingsPage() {
   const navigate = useNavigate()
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     localStorage.setItem('remember_me', 'false')
     sessionStorage.removeItem('session_active')
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('sb-')) localStorage.removeItem(key)
-    })
+    await signOut().catch(() => {})
     window.location.reload()
   }
 
