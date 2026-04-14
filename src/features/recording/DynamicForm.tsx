@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FieldDefinition } from '../../types'
 
 interface DynamicFormProps {
@@ -7,8 +7,28 @@ interface DynamicFormProps {
   onChange: (values: Record<string, unknown>) => void
 }
 
+type ItemEntry = { name: string; [key: string]: unknown }
+
+function buildSummary(entry: ItemEntry, field: FieldDefinition): string {
+  const sf = field.subFields ?? []
+  if (sf.length === 0) return ''
+  const hasAnyValue = sf.some(s => typeof entry[s.key] === 'number' && !isNaN(entry[s.key] as number))
+  if (!hasAnyValue) return ''
+  if (sf.length >= 2 && field.computedTotal && typeof entry.total === 'number') {
+    const v0 = entry[sf[0].key] as number
+    const v1 = entry[sf[1].key] as number
+    return `${isNaN(v0) ? '?' : v0} × ${isNaN(v1) ? '?' : v1} = ${entry.total}`
+  }
+  if (sf.length >= 2) {
+    return sf.map(s => `${s.label}: ${isNaN(entry[s.key] as number) ? '—' : entry[s.key]}`).join(' / ')
+  }
+  return `${sf[0].label}: ${entry[sf[0].key] ?? '—'}`
+}
+
 export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
   const [expandedItems, setExpandedItems] = useState<Record<string, Set<string>>>({})
+  const longPressTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+  const longPressFired = useRef<Set<string>>(new Set())
 
   // expandedItems cleanup: clear sets when parent resets item-list entries to empty
   useEffect(() => {
@@ -89,32 +109,36 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
             </div>
           )}
           {field.type === 'item-list' && (() => {
-            type ItemEntry = { name: string; [key: string]: unknown }
             const entries = ((values[field.key] as ItemEntry[]) ?? [])
-
             const fieldExpanded = expandedItems[field.key] ?? new Set<string>()
+            const sfCount = field.subFields?.length ?? 0
+            const colCount = sfCount + (field.computedTotal ? 1 : 0)
 
             const toggleItem = (itemName: string) => {
               const exists = entries.find(e => e.name === itemName)
               const isExpanded = fieldExpanded.has(itemName)
+              const newExpanded = new Set(fieldExpanded)
               if (!exists) {
-                // Not selected: select and expand
-                const newExpanded = new Set(fieldExpanded)
+                // 未選択 → 選択+展開
                 newExpanded.add(itemName)
                 setExpandedItems({ ...expandedItems, [field.key]: newExpanded })
                 onChange({ ...values, [field.key]: [...entries, { name: itemName }] })
               } else if (!isExpanded) {
-                // Selected but collapsed: expand only (no onChange)
-                const newExpanded = new Set(fieldExpanded)
+                // 折りたたみ → 展開
                 newExpanded.add(itemName)
                 setExpandedItems({ ...expandedItems, [field.key]: newExpanded })
               } else {
-                // Selected and expanded: deselect and collapse
-                const newExpanded = new Set(fieldExpanded)
+                // 展開 → 折りたたみ（値は保持）
                 newExpanded.delete(itemName)
                 setExpandedItems({ ...expandedItems, [field.key]: newExpanded })
-                onChange({ ...values, [field.key]: entries.filter(e => e.name !== itemName) })
               }
+            }
+
+            const deselectItem = (itemName: string) => {
+              const newExpanded = new Set(fieldExpanded)
+              newExpanded.delete(itemName)
+              setExpandedItems({ ...expandedItems, [field.key]: newExpanded })
+              onChange({ ...values, [field.key]: entries.filter(e => e.name !== itemName) })
             }
 
             const updateEntry = (itemName: string, subKey: string, val: number) => {
@@ -133,52 +157,88 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
 
             return (
               <div>
-                {/* 項目ピル */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-                  {field.options?.map(opt => {
-                    const selected = entries.some(e => e.name === opt)
-                    return (
+                {field.options?.map(opt => {
+                  const entry = entries.find(e => e.name === opt)
+                  const isSelected = !!entry
+                  const isExpanded = fieldExpanded.has(opt)
+                  const summary = entry ? buildSummary(entry, field) : ''
+                  const pressKey = `${field.key}:${opt}`
+
+                  return (
+                    <div key={opt} style={{ marginBottom: 6 }}>
                       <button
-                        key={opt}
                         type="button"
-                        onClick={() => toggleItem(opt)}
+                        onClick={() => {
+                          if (longPressFired.current.has(pressKey)) {
+                            longPressFired.current.delete(pressKey)
+                            return
+                          }
+                          toggleItem(opt)
+                        }}
+                        onPointerDown={() => {
+                          if (isSelected && !isExpanded) {
+                            longPressTimers.current[pressKey] = setTimeout(() => {
+                              longPressFired.current.add(pressKey)
+                              deselectItem(opt)
+                            }, 500)
+                          }
+                        }}
+                        onPointerUp={() => clearTimeout(longPressTimers.current[pressKey])}
+                        onPointerLeave={() => clearTimeout(longPressTimers.current[pressKey])}
                         style={{
-                          padding: '4px 12px', borderRadius: 16,
-                          border: selected ? '2px solid #fff' : '2px solid #6366f1',
-                          background: selected ? '#ec4899' : '#6366f1',
-                          color: '#fff', cursor: 'pointer',
-                          fontWeight: selected ? 700 : 400, outline: 'none',
+                          width: '100%',
+                          padding: '10px 12px',
+                          background: isSelected ? '#ec4899' : '#1e293b',
+                          border: isSelected ? 'none' : '1px solid #334155',
+                          borderRadius: isExpanded ? '8px 8px 0 0' : '8px',
+                          color: isSelected ? '#fff' : '#94a3b8',
+                          fontWeight: isSelected ? 700 : 400,
+                          fontSize: 13,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          outline: 'none',
+                          userSelect: 'none',
+                          boxSizing: 'border-box',
                         }}
                       >
-                        {opt}
+                        <span>{opt}</span>
+                        {isSelected && (
+                          <span style={{ fontSize: 11, opacity: 0.85, flexShrink: 0, marginLeft: 8 }}>
+                            {summary ? `${summary} ` : ''}{isExpanded ? '▲' : '▼'}
+                          </span>
+                        )}
                       </button>
-                    )
-                  })}
-                </div>
 
-                {/* 選択済み項目の入力欄 */}
-                {(field.options ?? []).filter(opt => fieldExpanded.has(opt)).map(itemName => {
-                  const entry = entries.find(e => e.name === itemName) ?? { name: itemName }
-                  return (
-                    <div key={itemName} style={{ border: '1px solid #334155', borderRadius: 8, padding: 10, marginBottom: 8 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6, color: '#e2e8f0' }}>▼ {itemName}</div>
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        {field.subFields?.map(sf => (
-                          <div key={sf.key} style={{ flex: 1, minWidth: 80 }}>
-                            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 2 }}>{sf.label}</div>
-                            <input
-                              type="number"
-                              placeholder={sf.label}
-                              value={(entry[sf.key] as number) ?? ''}
-                              onChange={e => updateEntry(itemName, sf.key, e.target.valueAsNumber)}
-                              style={{ width: '100%', padding: '6px 8px', border: '1px solid #334155', borderRadius: 4, background: '#0f172a', color: '#e2e8f0', boxSizing: 'border-box' }}
-                            />
+                      {isExpanded && (
+                        <div style={{ background: '#1e293b', borderRadius: '0 0 8px 8px', padding: '8px 10px' }}>
+                          {/* ラベル行 */}
+                          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, gap: 6, marginBottom: 4 }}>
+                            {field.subFields?.map(sf => (
+                              <span key={sf.key} style={{ fontSize: 11, color: '#64748b', textAlign: 'center' }}>{sf.label}</span>
+                            ))}
+                            {field.computedTotal && <span style={{ fontSize: 11, color: '#64748b', textAlign: 'center' }}>合計</span>}
                           </div>
-                        ))}
-                      </div>
-                      {field.computedTotal && typeof entry.total === 'number' && (
-                        <div style={{ marginTop: 6, fontSize: 13, color: '#6366f1', fontWeight: 700 }}>
-                          合計: {entry.total as number}
+                          {/* 入力行 */}
+                          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, gap: 6 }}>
+                            {field.subFields?.map(sf => (
+                              <input
+                                key={sf.key}
+                                type="number"
+                                placeholder={sf.label}
+                                value={(entry?.[sf.key] as number) ?? ''}
+                                onChange={e => updateEntry(opt, sf.key, e.target.valueAsNumber)}
+                                style={{ padding: '8px 6px', border: '1px solid #334155', borderRadius: 6, background: '#0f172a', color: '#e2e8f0', fontSize: 15, textAlign: 'center', width: '100%', boxSizing: 'border-box' }}
+                              />
+                            ))}
+                            {field.computedTotal && (
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: typeof entry?.total === 'number' ? '#6366f1' : '#475569' }}>
+                                {typeof entry?.total === 'number' ? entry.total : '—'}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

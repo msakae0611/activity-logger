@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
 import { DynamicForm } from '../../../features/recording/DynamicForm'
@@ -39,7 +39,7 @@ const itemListField: FieldDefinition = {
 }
 
 describe('DynamicForm - item-list', () => {
-  it('項目名のピルボタンを表示する', () => {
+  it('項目名のボタンを表示する', () => {
     render(<DynamicForm fields={[itemListField]} values={{}} onChange={() => {}} />)
     expect(screen.getByText('レッグプレス')).toBeInTheDocument()
     expect(screen.getByText('チェストプレス')).toBeInTheDocument()
@@ -60,25 +60,63 @@ describe('DynamicForm - item-list', () => {
     expect(onChange).toHaveBeenCalled()
   })
 
-  it('両サブフィールドが入力済みのとき合計を表示する', async () => {
+  it('展開時に入力済み値と合計が表示される', async () => {
     const values = {
       machines: [{ name: 'レッグプレス', weight: 30, reps: 15, total: 450 }],
     }
     render(<DynamicForm fields={[itemListField]} values={values} onChange={() => {}} />)
+    // 初期状態は折りたたみ → クリックで展開
     await userEvent.click(screen.getByText('レッグプレス'))
-    expect(screen.getByText(/合計.*450/)).toBeInTheDocument()
+    expect(screen.getByDisplayValue('30')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('15')).toBeInTheDocument()
+    expect(screen.getByText('450')).toBeInTheDocument()
   })
 
-  it('項目を再タップで選択解除するとonChangeで項目が除去される', async () => {
+  it('展開中に再タップすると折りたたむ（onChangeは呼ばれない）', async () => {
+    const onChange = vi.fn()
+    // 選択済みの初期値を渡すことで、クリック時に values が空のまま再選択される問題を回避
+    const values = { machines: [{ name: 'レッグプレス' }] }
+    render(<DynamicForm fields={[itemListField]} values={values} onChange={onChange} />)
+    // タップ1: 折りたたみ→展開（選択済みなのでonChangeは呼ばれない）
+    await userEvent.click(screen.getByText('レッグプレス'))
+    expect(screen.getByPlaceholderText('レベル')).toBeInTheDocument()
+    onChange.mockClear()
+    // タップ2: 展開→折りたたみ（onChangeは呼ばれない）
+    await userEvent.click(screen.getByText('レッグプレス'))
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.queryByPlaceholderText('レベル')).not.toBeInTheDocument()
+  })
+
+  it('折りたたみ中のボタンを長押しで選択解除する', () => {
+    vi.useFakeTimers()
     const onChange = vi.fn()
     const values = {
       machines: [{ name: 'レッグプレス', weight: 30, reps: 15, total: 450 }],
     }
     render(<DynamicForm fields={[itemListField]} values={values} onChange={onChange} />)
-    // 選択済み項目を再タップ
-    await userEvent.click(screen.getByText('レッグプレス'))
-    await userEvent.click(screen.getByText('レッグプレス'))
-    const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
-    expect(lastCall.machines).toEqual([])
+    // 初期状態: 選択済みかつ折りたたみ
+    const btn = screen.getByRole('button', { name: /レッグプレス/ })
+    fireEvent.pointerDown(btn)
+    vi.advanceTimersByTime(500)
+    expect(onChange).toHaveBeenCalledWith({ machines: [] })
+    vi.useRealTimers()
+  })
+
+  it('折りたたみ時にサマリー文字列を表示する', () => {
+    const values = {
+      machines: [{ name: 'レッグプレス', weight: 30, reps: 15, total: 450 }],
+    }
+    render(<DynamicForm fields={[itemListField]} values={values} onChange={() => {}} />)
+    // 初期状態は折りたたみ: サマリーがボタン内に表示される
+    expect(screen.getByText(/30 × 15 = 450/)).toBeInTheDocument()
+  })
+
+  it('折りたたみ時は入力欄を表示しない', () => {
+    const values = {
+      machines: [{ name: 'レッグプレス', weight: 30, reps: 15, total: 450 }],
+    }
+    render(<DynamicForm fields={[itemListField]} values={values} onChange={() => {}} />)
+    // 初期状態は折りたたみ
+    expect(screen.queryByPlaceholderText('レベル')).not.toBeInTheDocument()
   })
 })
