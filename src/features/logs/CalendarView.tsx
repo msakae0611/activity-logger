@@ -7,7 +7,25 @@ import { saveRecord } from '../recording/useRecording'
 import { updateRecord, deleteRecord } from './useLogsDb'
 import { toLocalDateTimeString } from '../../lib/utils/dates'
 import { useAuthContext as useAuth } from '../auth/AuthContext'
-import type { Record as LogRecord } from '../../types'
+import type { Record as LogRecord, FieldDefinition } from '../../types'
+
+function formatItemEntry(item: unknown, field?: FieldDefinition): string {
+  if (typeof item !== 'object' || item === null) return String(item)
+  const obj = item as Record<string, unknown>
+  const name = typeof obj.name === 'string' ? obj.name : ''
+  const sf = field?.subFields ?? []
+  if (sf.length >= 2 && field?.computedTotal && typeof obj.total === 'number') {
+    const v0 = obj[sf[0].key]
+    const v1 = obj[sf[1].key]
+    return `${name} ${v0}×${v1}=${obj.total}`.trim()
+  }
+  if (sf.length >= 1) {
+    const parts = sf.map(s => `${s.label}:${obj[s.key] ?? '—'}`).join(' ')
+    return name ? `${name} ${parts}` : parts
+  }
+  const vals = Object.entries(obj).filter(([k]) => k !== 'name').map(([, val]) => val).join(' ')
+  return name ? (vals ? `${name} ${vals}` : name) : vals
+}
 
 const DOT_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899']
 
@@ -145,7 +163,7 @@ export function CalendarView() {
                       if (Array.isArray(v)) {
                         return v.map((item, i) => (
                           <button key={`${k}-${i}`} style={pillStyle}>
-                            {String(item)}
+                            {formatItemEntry(item, field)}
                           </button>
                         ))
                       }

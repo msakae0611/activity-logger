@@ -1,5 +1,23 @@
-import type { Record as LogRecord, Category } from '../../types'
+import type { Record as LogRecord, Category, FieldDefinition } from '../../types'
 import { formatDateTime } from '../../lib/utils/dates'
+
+function formatItemEntry(item: unknown, field?: FieldDefinition): string {
+  if (typeof item !== 'object' || item === null) return String(item)
+  const obj = item as Record<string, unknown>
+  const name = typeof obj.name === 'string' ? obj.name : ''
+  const sf = field?.subFields ?? []
+  if (sf.length >= 2 && field?.computedTotal && typeof obj.total === 'number') {
+    const v0 = obj[sf[0].key]
+    const v1 = obj[sf[1].key]
+    return `${name} ${v0}×${v1}=${obj.total}`.trim()
+  }
+  if (sf.length >= 1) {
+    const parts = sf.map(s => `${s.label}:${obj[s.key] ?? '—'}`).join(' ')
+    return name ? `${name} ${parts}` : parts
+  }
+  const vals = Object.entries(obj).filter(([k]) => k !== 'name').map(([, val]) => val).join(' ')
+  return name ? (vals ? `${name} ${vals}` : name) : vals
+}
 
 interface LogCardProps {
   record: LogRecord
@@ -12,7 +30,7 @@ export function LogCard({ record, category, onDelete }: LogCardProps) {
     const field = category?.fields.find(f => f.key === k)
     const label = field?.label ?? k
     const unit = field?.unit ? ` ${field.unit}` : ''
-    const val = Array.isArray(v) ? v.join(', ') : String(v)
+    const val = Array.isArray(v) ? v.map(item => formatItemEntry(item, field)).join(', ') : String(v)
     return { label, val, unit }
   })
 
