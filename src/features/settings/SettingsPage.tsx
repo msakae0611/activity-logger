@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
+import { supabase } from '../../lib/supabase/client'
 
 const menuItem = {
   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -10,14 +11,24 @@ const menuItem = {
 
 export function SettingsPage() {
   const navigate = useNavigate()
+  const [signingOut, setSigningOut] = useState(false)
 
-  const handleSignOut = () => {
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('sb-')) localStorage.removeItem(key)
-    })
+  const handleSignOut = async () => {
+    if (signingOut) return
+    setSigningOut(true)
+    // ログイン継続フラグをクリア
     localStorage.setItem('remember_me', 'false')
     sessionStorage.removeItem('session_active')
-    window.location.reload()
+    // Supabase の正規ログアウトを呼ぶ（SIGNED_OUT イベント → useAuth が user=null に更新）
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('[SettingsPage] signOut error:', error)
+      // 万一失敗してもローカルセッションを強制クリアしてリロード
+      Object.keys(localStorage).filter(k => k.startsWith('sb-')).forEach(k => localStorage.removeItem(k))
+      window.location.replace('/')
+    }
+    // 成功時は SIGNED_OUT イベントを受けた useAuth が setUser(null) → LoginPage を表示するため、
+    // ここでは何もしない（setSigningOut(false) も不要、コンポーネントはアンマウントされる）
   }
 
   return (
@@ -31,8 +42,11 @@ export function SettingsPage() {
         <span>📥 CSVエクスポート</span>
         <span style={{ color: '#64748b' }}>›</span>
       </div>
-      <div onClick={handleSignOut} style={{ ...menuItem, marginTop: 24, color: '#f87171', borderColor: '#3f1e1e', background: '#1c1010' }}>
-        <span>🚪 ログアウト</span>
+      <div
+        onClick={() => { void handleSignOut() }}
+        style={{ ...menuItem, marginTop: 24, color: signingOut ? '#94a3b8' : '#f87171', borderColor: '#3f1e1e', background: '#1c1010', pointerEvents: signingOut ? 'none' : 'auto' }}
+      >
+        <span>{signingOut ? 'ログアウト中...' : '🚪 ログアウト'}</span>
       </div>
     </div>
   )

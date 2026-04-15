@@ -23,9 +23,10 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/,
+            // REST API（データ取得）のみキャッシュ。認証エンドポイント（/auth/*）は除外する
+            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/,
             handler: 'NetworkFirst',
-            options: { cacheName: 'supabase-cache', expiration: { maxAgeSeconds: 60 * 60 } },
+            options: { cacheName: 'supabase-rest-cache', expiration: { maxAgeSeconds: 60 * 60 } },
           },
         ],
       },

@@ -49,33 +49,55 @@ export function useAuth() {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('[useAuth] auth event:', event, session ? 'session=ok' : 'session=null')
+
+      // --- SIGNED_OUT: UI を即時更新してからDBクリア（バックグラウンド）---
+      if (event === 'SIGNED_OUT') {
+        setUser(null)
+        setLoading(false)
+        // DBクリアは await しない（UI更新を優先）
+        void Promise.allSettled([
+          db.records.clear(),
+          db.categories.clear(),
+          db.syncQueue.clear(),
+          db.dashboards.clear(),
+        ])
+        return
+      }
+
+      // --- INITIAL_SESSION: remember_me チェック ---
       if (event === 'INITIAL_SESSION' && session) {
-        // ログイン状態を保持しない設定で、かつ今のセッションが新規ログインでない場合はサインアウト
         const rememberMe = localStorage.getItem('remember_me') === 'true'
         const sessionActive = sessionStorage.getItem('session_active') === 'true'
         if (!rememberMe && !sessionActive) {
-          await supabase.auth.signOut()
+          // コールバック内から直接 signOut() を呼ぶと再入ロック問題が起きるため
+          // setTimeout でイベントループの外に出してから実行する
+          setUser(null)
+          setLoading(false)
+          setTimeout(() => { void supabase.auth.signOut({ scope: 'local' }) }, 0)
           return
         }
       }
 
-      if (event === 'SIGNED_OUT') {
-        // ログアウト時にローカルDBのデータをクリア
-        await db.records.clear().catch(() => {})
-        await db.categories.clear().catch(() => {})
-        await db.syncQueue.clear().catch(() => {})
-        await db.dashboards.clear().catch(() => {})
+      // --- ログイン / セッション復元 ---
+      if (session?.user) {
+        if (event === 'SIGNED_IN') {
+          sessionStorage.setItem('session_active', 'true')
+        }
+        // UI を即時更新してから DB シード（バックグラウンド）
+        setUser(session.user)
+        setLoading(false)
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+          void seedLocalDb(session.user.id).catch(err =>
+            console.error('[useAuth] seedLocalDb failed:', err)
+          )
+        }
+        return
       }
 
-      setUser(session?.user ?? null)
+      // セッションなし（INITIAL_SESSION で session=null など）
+      setUser(null)
       setLoading(false)
-
-      if (session?.user && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-        if (event === 'SIGNED_IN') sessionStorage.setItem('session_active', 'true')
-        console.log('[useAuth] seeding local DB for user:', session.user.id)
-        await seedLocalDb(session.user.id).catch(err => console.error('[seedLocalDb] failed:', err))
-        console.log('[useAuth] seedLocalDb complete')
-      }
     })
 
     return () => subscription.unsubscribe()
