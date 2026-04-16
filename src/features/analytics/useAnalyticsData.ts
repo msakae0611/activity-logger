@@ -96,8 +96,8 @@ export function useAnalyticsData(
     )
 
     const { from, to, buckets } = getPeriodRange(period)
-    const fromISO = from.toISOString().slice(0, 10)
-    const toISO = to.toISOString().slice(0, 10) + 'T23:59:59'
+    const fromISO = toDateKey(from)
+    const toISO = toDateKey(to) + 'T23:59:59'
 
     const records = await db.records
       .where('user_id').equals(userId)
