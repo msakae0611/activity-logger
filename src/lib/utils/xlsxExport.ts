@@ -147,7 +147,7 @@ function buildItemListSheet(
   const subFields = field.subFields ?? []
   const itemNames = collectItemNames(field, records)
 
-  sheet.addRow(['日付', ...itemNames])
+  sheet.addRow(['日付', ...itemNames, '日計'])
   applyHeaderStyle(sheet.lastRow!)
 
   // Aggregate by date
@@ -171,17 +171,16 @@ function buildItemListSheet(
 
   for (const date of dateOrder) {
     const dayMap = dateMap.get(date)!
-    sheet.addRow([
-      date,
-      ...itemNames.map(name => {
-        const v = dayMap.get(name)
-        return v !== undefined ? v : ''
-      }),
-    ])
+    const itemValues = itemNames.map(name => {
+      const v = dayMap.get(name)
+      return v !== undefined ? v : ''
+    })
+    const dayTotal = itemNames.reduce((sum, name) => sum + (dayMap.get(name) ?? 0), 0)
+    sheet.addRow([date, ...itemValues, dayTotal])
   }
 
-  // Number format for item columns
-  for (let i = 0; i < itemNames.length; i++) {
+  // Number format for item columns + 日計 column
+  for (let i = 0; i < itemNames.length + 1; i++) {
     sheet.getColumn(2 + i).numFmt = '#,##0.##'
   }
 }
