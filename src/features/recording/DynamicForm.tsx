@@ -214,31 +214,26 @@ export function DynamicForm({ fields, values, onChange }: DynamicFormProps) {
                           >×</button>
                         )}
                       </div>
-                      {/* 2行目: 展開時の入力欄 */}
+                      {/* 展開時の入力欄（ラベルを入力枠右端に統合、1行） */}
                       {isExpanded && (
                         <div style={{ background: '#1e293b', borderRadius: '0 0 8px 8px', padding: '8px 10px' }}>
-                          {/* ラベル行 */}
-                          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, gap: 6, marginBottom: 4 }}>
-                            {field.subFields?.map(sf => (
-                              <span key={sf.key} style={{ fontSize: 11, color: '#64748b', textAlign: 'center' }}>{sf.label}</span>
-                            ))}
-                            {field.computedTotal && <span style={{ fontSize: 11, color: '#64748b', textAlign: 'center' }}>合計</span>}
-                          </div>
-                          {/* 入力行 */}
                           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${colCount}, 1fr)`, gap: 6 }}>
                             {field.subFields?.map(sf => (
-                              <input
-                                key={sf.key}
-                                type="number"
-                                placeholder={sf.label}
-                                value={(entry?.[sf.key] as number) ?? ''}
-                                onChange={e => updateEntry(opt, sf.key, e.target.valueAsNumber)}
-                                style={{ padding: '8px 6px', border: '1px solid #334155', borderRadius: 6, background: '#0f172a', color: '#e2e8f0', fontSize: 15, textAlign: 'center', width: '100%', boxSizing: 'border-box' }}
-                              />
+                              <div key={sf.key} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <input
+                                  type="number"
+                                  placeholder="0"
+                                  value={(entry?.[sf.key] as number) ?? ''}
+                                  onChange={e => updateEntry(opt, sf.key, e.target.valueAsNumber)}
+                                  style={{ padding: '8px 28px 8px 8px', border: '1px solid #334155', borderRadius: 6, background: '#0f172a', color: '#e2e8f0', fontSize: 15, textAlign: 'center', width: '100%', boxSizing: 'border-box' }}
+                                />
+                                <span style={{ position: 'absolute', right: 6, fontSize: 11, color: '#64748b', pointerEvents: 'none', whiteSpace: 'nowrap' }}>{sf.label}</span>
+                              </div>
                             ))}
                             {field.computedTotal && (
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, color: typeof entry?.total === 'number' ? '#6366f1' : '#475569' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, fontSize: 16, fontWeight: 700, color: typeof entry?.total === 'number' ? '#6366f1' : '#475569' }}>
                                 {typeof entry?.total === 'number' ? entry.total : '—'}
+                                <span style={{ fontSize: 11, color: '#64748b', fontWeight: 400 }}>合計</span>
                               </div>
                             )}
                           </div>
