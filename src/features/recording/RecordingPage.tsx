@@ -100,15 +100,16 @@ export function RecordingPage() {
       <h2>記録</h2>
 
       {/* Category selector */}
-      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 16, paddingBottom: 4, paddingTop: 4, paddingLeft: 4, paddingRight: 4 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16, paddingBottom: 4, paddingTop: 4, paddingLeft: 4, paddingRight: 4 }}>
         {categories?.map(cat => {
           const catColor = cat.color ?? '#c4b5fd'
           const isSelected = selectedId === cat.id
           return (
             <button key={cat.id} onClick={() => { setSelectedId(cat.id); setValues({}) }}
               style={{
-                padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
-                whiteSpace: 'nowrap',
+                padding: 'clamp(5px, 1.5vw, 8px) clamp(10px, 3vw, 14px)',
+                fontSize: 'clamp(12px, 3.5vw, 14px)',
+                borderRadius: 20, border: 'none', cursor: 'pointer',
                 background: catColor,
                 color: '#1e293b',
                 fontWeight: isSelected ? 700 : 400,
