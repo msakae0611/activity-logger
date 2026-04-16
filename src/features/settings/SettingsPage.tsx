@@ -39,7 +39,7 @@ export function SettingsPage() {
         <span style={{ color: '#64748b' }}>›</span>
       </div>
       <div onClick={() => navigate('/settings/export')} style={menuItem}>
-        <span>📥 CSVエクスポート</span>
+        <span>📥 データエクスポート</span>
         <span style={{ color: '#64748b' }}>›</span>
       </div>
       <div

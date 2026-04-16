@@ -19,7 +19,7 @@ const HEADER_FONT: Partial<ExcelJS.Font> = {
 
 function formatValue(value: unknown, field: FieldDefinition): string | number {
   if (value === null || value === undefined) return ''
-  if (field.type === 'boolean') return value === true ? 'はい' : value === false ? 'いいえ' : ''
+  if (field.type === 'boolean') return value === true ? '○' : ''
   if ((field.type === 'number' || field.type === 'duration' || field.type === 'rating') && typeof value === 'number' && !isNaN(value)) {
     return value
   }
@@ -27,7 +27,9 @@ function formatValue(value: unknown, field: FieldDefinition): string | number {
 }
 
 function getDatePart(isoString: string): string {
-  return isoString.substring(0, 10)
+  // Returns "YYYY/M/D" format (e.g. 2026/4/15)
+  const [y, m, d] = isoString.substring(0, 10).split('-')
+  return `${y}/${Number(m)}/${Number(d)}`
 }
 
 function applyHeaderStyle(row: ExcelJS.Row): void {
