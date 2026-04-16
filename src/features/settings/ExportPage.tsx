@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../../lib/db/db'
 import { useAuthContext as useAuth } from '../auth/AuthContext'
 import { buildCsvContent, buildFilename, downloadCsv } from '../../lib/utils/csvExport'
+import { buildXlsxBuffer, buildXlsxFilename, downloadXlsx } from '../../lib/utils/xlsxExport'
 
 export function ExportPage() {
   const { user } = useAuth()
@@ -13,6 +14,7 @@ export function ExportPage() {
   const [toDate, setToDate] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [xlsxLoading, setXlsxLoading] = useState(false)
 
   const categories = useLiveQuery(
     () => user ? db.categories.where('user_id').equals(user.id).sortBy('sort_order') : [],
@@ -61,6 +63,49 @@ export function ExportPage() {
       setError('エクスポートに失敗しました。もう一度お試しください。')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleXlsxDownload = async () => {
+    if (!selectedCategory || !user) return
+    setError(null)
+
+    if (fromDate && toDate && fromDate > toDate) {
+      setError('開始日は終了日より前にしてください')
+      return
+    }
+
+    setXlsxLoading(true)
+    try {
+      const records = await db.records
+        .where('category_id').equals(selectedId)
+        .filter(r => {
+          const date = r.recorded_at.slice(0, 10)
+          if (fromDate && date < fromDate) return false
+          if (toDate && date > toDate) return false
+          return true
+        })
+        .sortBy('recorded_at')
+
+      if (records.length === 0) {
+        setError('該当期間にデータがありません')
+        return
+      }
+
+      const d = new Date()
+      const today = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
+      const buffer = await buildXlsxBuffer(selectedCategory, records)
+      const filename = buildXlsxFilename(
+        selectedCategory.name,
+        fromDate || null,
+        toDate || null,
+        today,
+      )
+      downloadXlsx(buffer, filename)
+    } catch {
+      setError('エクスポートに失敗しました。もう一度お試しください。')
+    } finally {
+      setXlsxLoading(false)
     }
   }
 
@@ -143,21 +188,38 @@ export function ExportPage() {
         <p style={{ color: '#ef4444', marginBottom: 12, fontSize: 14 }}>{error}</p>
       )}
 
-      <button
-        onClick={handleDownload}
-        disabled={!selectedId || loading}
-        style={{
-          width: '100%', padding: 14,
-          background: !selectedId ? '#1e293b' : '#6366f1',
-          color: !selectedId ? '#64748b' : '#fff',
-          border: 'none', borderRadius: 8,
-          cursor: (!selectedId || loading) ? 'default' : 'pointer',
-          opacity: loading ? 0.6 : 1,
-          fontWeight: 700, fontSize: 16,
-        }}
-      >
-        {loading ? '生成中...' : '📥 CSVをダウンロード'}
-      </button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <button
+          onClick={handleDownload}
+          disabled={!selectedId || loading}
+          style={{
+            width: '100%', padding: 14,
+            background: !selectedId ? '#1e293b' : '#6366f1',
+            color: !selectedId ? '#64748b' : '#fff',
+            border: 'none', borderRadius: 8,
+            cursor: (!selectedId || loading) ? 'default' : 'pointer',
+            opacity: loading ? 0.6 : 1,
+            fontWeight: 700, fontSize: 16,
+          }}
+        >
+          {loading ? '生成中...' : '📥 CSVをダウンロード'}
+        </button>
+        <button
+          onClick={handleXlsxDownload}
+          disabled={!selectedId || xlsxLoading}
+          style={{
+            width: '100%', padding: 14,
+            background: !selectedId ? '#1e293b' : '#166534',
+            color: !selectedId ? '#64748b' : '#fff',
+            border: 'none', borderRadius: 8,
+            cursor: (!selectedId || xlsxLoading) ? 'default' : 'pointer',
+            opacity: xlsxLoading ? 0.6 : 1,
+            fontWeight: 700, fontSize: 16,
+          }}
+        >
+          {xlsxLoading ? '生成中...' : '📊 Excelをダウンロード'}
+        </button>
+      </div>
     </div>
   )
 }
