@@ -65,6 +65,7 @@ export function RecordingPage() {
     setSelectedFieldKey(null)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+    window.scrollTo(0, 0)
   }
 
   const handleDelete = async () => {
