@@ -43,6 +43,7 @@ function applyHeaderStyle(row: ExcelJS.Row): void {
 
 function autoFitColumns(sheet: ExcelJS.Worksheet): void {
   sheet.columns.forEach(col => {
+    if (!col.eachCell) return
     let maxLen = 8
     col.eachCell({ includeEmpty: false }, cell => {
       const val = cell.value == null ? '' : String(cell.value)
@@ -58,9 +59,6 @@ function isNumericField(field: FieldDefinition): boolean {
   return field.type === 'number' || field.type === 'rating'
 }
 
-function isNumericSubField(label: string, value: unknown): boolean {
-  return typeof value === 'number' && !isNaN(value)
-}
 
 export async function buildXlsxBuffer(category: Category, records: LogRecord[]): Promise<ArrayBuffer> {
   const workbook = new ExcelJS.Workbook()
