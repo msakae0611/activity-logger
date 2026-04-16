@@ -54,14 +54,26 @@ describe('buildCsvContent', () => {
     expect(lines[2]).toBe('2026-04-02,いいえ')
   })
 
-  it('multi-select フィールド: | で連結', () => {
+  it('multi-select フィールド: 選択肢ごとに列を分け ○ で表現', () => {
     const category = makeCategory({
       fields: [{ key: 'tags', label: 'タグ', type: 'multi-select', options: ['A', 'B', 'C'] }],
     })
     const records = [makeRecord({ values: { tags: ['A', 'C'] } })]
     const csv = buildCsvContent(category, records)
     const lines = csv.replace('\uFEFF', '').split('\n')
-    expect(lines[1]).toBe('2026-04-01,A|C')
+    expect(lines[0]).toBe('日付,A,B,C')
+    expect(lines[1]).toBe('2026-04-01,○,,○')
+  })
+
+  it('multi-select: 未選択は空文字', () => {
+    const category = makeCategory({
+      fields: [{ key: 'sym', label: '症状', type: 'multi-select', options: ['頭痛', '腹痛', '疲れ'] }],
+    })
+    const records = [makeRecord({ values: { sym: ['腹痛'] } })]
+    const csv = buildCsvContent(category, records)
+    const lines = csv.replace('\uFEFF', '').split('\n')
+    expect(lines[0]).toBe('日付,頭痛,腹痛,疲れ')
+    expect(lines[1]).toBe('2026-04-01,,○,')
   })
 
   it('値が未入力の場合: 空文字', () => {
@@ -84,42 +96,12 @@ describe('buildCsvContent', () => {
     expect(lines[1]).toBe('2026-04-01,"良好,快適"')
   })
 
-  it('item-list (computedTotal なし): 各アイテムを1行に展開', () => {
+  it('item-list: 日次集約 — 1日1行、各アイテムが列になる', () => {
     const category = makeCategory({
       fields: [{
         key: 'exercise',
         label: '種目',
         type: 'item-list',
-        options: ['レッグプレス', 'チェストプレス'],
-        subFields: [
-          { key: 'weight', label: '重さ' },
-          { key: 'reps', label: '回数' },
-        ],
-        computedTotal: false,
-      }],
-    })
-    const records = [makeRecord({
-      values: {
-        exercise: [
-          { name: 'レッグプレス', weight: 80, reps: 10 },
-          { name: 'チェストプレス', weight: 60, reps: 12 },
-        ],
-      },
-    })]
-    const csv = buildCsvContent(category, records)
-    const lines = csv.replace('\uFEFF', '').split('\n')
-    expect(lines[0]).toBe('日付,種目,重さ,回数')
-    expect(lines[1]).toBe('2026-04-01,レッグプレス,80,10')
-    expect(lines[2]).toBe('2026-04-01,チェストプレス,60,12')
-  })
-
-  it('item-list (computedTotal あり): 合計列を追加', () => {
-    const category = makeCategory({
-      fields: [{
-        key: 'exercise',
-        label: '種目',
-        type: 'item-list',
-        options: ['レッグプレス'],
         subFields: [
           { key: 'weight', label: '重さ' },
           { key: 'reps', label: '回数' },
@@ -129,22 +111,47 @@ describe('buildCsvContent', () => {
     })
     const records = [makeRecord({
       values: {
-        exercise: [{ name: 'レッグプレス', weight: 80, reps: 10, total: 800 }],
+        exercise: [
+          { name: 'レッグプレス', weight: 150, reps: 3, total: 450 },
+          { name: 'チェストプレス', weight: 80, reps: 3, total: 240 },
+        ],
       },
     })]
     const csv = buildCsvContent(category, records)
     const lines = csv.replace('\uFEFF', '').split('\n')
-    expect(lines[0]).toBe('日付,種目,重さ,回数,合計')
-    expect(lines[1]).toBe('2026-04-01,レッグプレス,80,10,800')
+    expect(lines[0]).toBe('日付,レッグプレス,チェストプレス')
+    expect(lines[1]).toBe('2026-04-01,450,240')
   })
 
-  it('item-list (total 未保存): subFields から計算する', () => {
+  it('item-list: 同一日の複数レコードは合計値', () => {
     const category = makeCategory({
       fields: [{
         key: 'exercise',
         label: '種目',
         type: 'item-list',
-        options: ['レッグプレス'],
+        subFields: [
+          { key: 'weight', label: '重さ' },
+          { key: 'reps', label: '回数' },
+        ],
+        computedTotal: true,
+      }],
+    })
+    const records = [
+      makeRecord({ id: 'r1', values: { exercise: [{ name: 'レッグプレス', weight: 150, reps: 3, total: 450 }] } }),
+      makeRecord({ id: 'r2', values: { exercise: [{ name: 'レッグプレス', weight: 100, reps: 3, total: 300 }] } }),
+    ]
+    const csv = buildCsvContent(category, records)
+    const lines = csv.replace('\uFEFF', '').split('\n')
+    expect(lines[0]).toBe('日付,レッグプレス')
+    expect(lines[1]).toBe('2026-04-01,750')
+  })
+
+  it('item-list: total 未保存は subFields から計算して集約', () => {
+    const category = makeCategory({
+      fields: [{
+        key: 'exercise',
+        label: '種目',
+        type: 'item-list',
         subFields: [
           { key: 'weight', label: '重さ' },
           { key: 'reps', label: '回数' },
@@ -159,16 +166,36 @@ describe('buildCsvContent', () => {
     })]
     const csv = buildCsvContent(category, records)
     const lines = csv.replace('\uFEFF', '').split('\n')
-    expect(lines[1]).toBe('2026-04-01,レッグプレス,80,10,800')
+    expect(lines[1]).toBe('2026-04-01,800')
   })
 
-  it('item-list: アイテムが空の記録はスキップ', () => {
+  it('item-list: アイテムがない日はその列が空', () => {
     const category = makeCategory({
       fields: [{
         key: 'exercise',
         label: '種目',
         type: 'item-list',
-        options: ['レッグプレス'],
+        subFields: [{ key: 'weight', label: '重さ' }],
+        computedTotal: false,
+      }],
+    })
+    const records = [
+      makeRecord({ id: 'r1', recorded_at: '2026-04-01T12:00:00.000Z', values: { exercise: [{ name: 'レッグプレス', weight: 80 }] } }),
+      makeRecord({ id: 'r2', recorded_at: '2026-04-02T12:00:00.000Z', values: { exercise: [{ name: 'チェストプレス', weight: 60 }] } }),
+    ]
+    const csv = buildCsvContent(category, records)
+    const lines = csv.replace('\uFEFF', '').split('\n')
+    expect(lines[0]).toBe('日付,レッグプレス,チェストプレス')
+    expect(lines[1]).toBe('2026-04-01,80,')
+    expect(lines[2]).toBe('2026-04-02,,60')
+  })
+
+  it('item-list: アイテムが空の記録はスキップ (日付行自体も出ない)', () => {
+    const category = makeCategory({
+      fields: [{
+        key: 'exercise',
+        label: '種目',
+        type: 'item-list',
         subFields: [{ key: 'weight', label: '重さ' }],
         computedTotal: false,
       }],
@@ -176,27 +203,33 @@ describe('buildCsvContent', () => {
     const records = [makeRecord({ values: { exercise: [] } })]
     const csv = buildCsvContent(category, records)
     const lines = csv.replace('\uFEFF', '').split('\n').filter(Boolean)
+    // header only
     expect(lines).toHaveLength(1)
   })
 
-  it('item-list: computedTotal=true でも subFields が1つなら合計列なし', () => {
+  it('item-list + 通常フィールド: 非item-listフィールドは当日最終値', () => {
     const category = makeCategory({
-      fields: [{
-        key: 'exercise',
-        label: '種目',
-        type: 'item-list',
-        options: ['レッグプレス'],
-        subFields: [{ key: 'weight', label: '重さ' }],
-        computedTotal: true,
-      }],
+      fields: [
+        { key: 'note', label: 'メモ', type: 'text' },
+        {
+          key: 'exercise',
+          label: '種目',
+          type: 'item-list',
+          subFields: [{ key: 'weight', label: '重さ' }, { key: 'reps', label: '回数' }],
+          computedTotal: true,
+        },
+      ],
     })
     const records = [makeRecord({
-      values: { exercise: [{ name: 'レッグプレス', weight: 80 }] },
+      values: {
+        note: '快調',
+        exercise: [{ name: 'レッグプレス', weight: 150, reps: 3, total: 450 }],
+      },
     })]
     const csv = buildCsvContent(category, records)
     const lines = csv.replace('\uFEFF', '').split('\n')
-    expect(lines[0]).toBe('日付,種目,重さ')      // 合計列なし
-    expect(lines[1]).toBe('2026-04-01,レッグプレス,80') // データ行も合計列なし
+    expect(lines[0]).toBe('日付,メモ,レッグプレス')
+    expect(lines[1]).toBe('2026-04-01,快調,450')
   })
 
   it('UTF-8 BOM で始まる', () => {

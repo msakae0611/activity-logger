@@ -3,6 +3,7 @@ import type { Category, FieldDefinition } from '../../types'
 import type { Record as LogRecord } from '../../types'
 
 type ItemEntry = { name: string; total?: number; [subFieldKey: string]: unknown }
+type ItemListSubField = { key: string; label: string }
 
 const HEADER_FILL: ExcelJS.Fill = {
   type: 'pattern',
@@ -19,9 +20,6 @@ const HEADER_FONT: Partial<ExcelJS.Font> = {
 function formatValue(value: unknown, field: FieldDefinition): string | number {
   if (value === null || value === undefined) return ''
   if (field.type === 'boolean') return value === true ? 'はい' : value === false ? 'いいえ' : ''
-  if (field.type === 'multi-select') {
-    return Array.isArray(value) ? value.join(', ') : String(value)
-  }
   if ((field.type === 'number' || field.type === 'duration' || field.type === 'rating') && typeof value === 'number' && !isNaN(value)) {
     return value
   }
@@ -49,7 +47,6 @@ function autoFitColumns(sheet: ExcelJS.Worksheet): void {
       const val = cell.value == null ? '' : String(cell.value)
       if (val.length > maxLen) maxLen = val.length
     })
-    // Japanese characters count double in width
     const adjusted = Math.min(maxLen * 1.4, 50)
     col.width = adjusted
   })
@@ -59,102 +56,156 @@ function isNumericField(field: FieldDefinition): boolean {
   return field.type === 'number' || field.type === 'rating'
 }
 
+function sanitizeSheetName(name: string): string {
+  // Excel sheet name: max 31 chars, no :/\?*[]
+  return name.replace(/[:/\\?*[\]]/g, '_').slice(0, 31)
+}
+
+/** Collect all unique multi-select options (from field definition, then from records) */
+function collectMultiSelectOptions(field: FieldDefinition, records: LogRecord[]): string[] {
+  const opts = new Set<string>(field.options ?? [])
+  for (const record of records) {
+    const val = record.values[field.key]
+    if (Array.isArray(val)) val.forEach(v => opts.add(String(v)))
+  }
+  return Array.from(opts)
+}
+
+/** Collect all unique item names from item-list records */
+function collectItemNames(field: FieldDefinition, records: LogRecord[]): string[] {
+  const names = new Set<string>()
+  for (const record of records) {
+    const items = (record.values[field.key] as ItemEntry[] | undefined) ?? []
+    for (const item of items) {
+      if (item.name) names.add(item.name)
+    }
+  }
+  return Array.from(names)
+}
+
+/** Compute item total from a single item entry */
+function computeItemTotal(item: ItemEntry, subFields: ItemListSubField[]): number {
+  if (typeof item.total === 'number' && !isNaN(item.total)) return item.total
+  if (subFields.length >= 2) {
+    return Number(item[subFields[0].key] ?? 0) * Number(item[subFields[1].key] ?? 0)
+  }
+  if (subFields.length === 1) {
+    return Number(item[subFields[0].key] ?? 0)
+  }
+  return 0
+}
+
+// --- Sheet builders ---
+
+function buildSimpleSheet(
+  sheet: ExcelJS.Worksheet,
+  field: FieldDefinition,
+  records: LogRecord[],
+): void {
+  sheet.addRow(['日付', field.label])
+  applyHeaderStyle(sheet.lastRow!)
+
+  for (const record of records) {
+    sheet.addRow([getDatePart(record.recorded_at), formatValue(record.values[field.key], field)])
+  }
+
+  if (isNumericField(field)) {
+    sheet.getColumn(2).numFmt = '#,##0.##'
+  }
+}
+
+function buildMultiSelectSheet(
+  sheet: ExcelJS.Worksheet,
+  field: FieldDefinition,
+  records: LogRecord[],
+): void {
+  const options = collectMultiSelectOptions(field, records)
+
+  sheet.addRow(['日付', ...options])
+  applyHeaderStyle(sheet.lastRow!)
+
+  for (const record of records) {
+    const selected = new Set<string>(
+      Array.isArray(record.values[field.key])
+        ? (record.values[field.key] as unknown[]).map(String)
+        : [],
+    )
+    sheet.addRow([
+      getDatePart(record.recorded_at),
+      ...options.map(opt => (selected.has(opt) ? '○' : '')),
+    ])
+  }
+}
+
+function buildItemListSheet(
+  sheet: ExcelJS.Worksheet,
+  field: FieldDefinition,
+  records: LogRecord[],
+): void {
+  const subFields = field.subFields ?? []
+  const itemNames = collectItemNames(field, records)
+
+  sheet.addRow(['日付', ...itemNames])
+  applyHeaderStyle(sheet.lastRow!)
+
+  // Aggregate by date
+  const dateOrder: string[] = []
+  const dateMap = new Map<string, Map<string, number>>()
+
+  for (const record of records) {
+    const date = getDatePart(record.recorded_at)
+    if (!dateMap.has(date)) {
+      dateMap.set(date, new Map())
+      dateOrder.push(date)
+    }
+    const dayMap = dateMap.get(date)!
+    const items = (record.values[field.key] as ItemEntry[] | undefined) ?? []
+    for (const item of items) {
+      if (!item.name) continue
+      const total = computeItemTotal(item, subFields)
+      dayMap.set(item.name, (dayMap.get(item.name) ?? 0) + (isNaN(total) ? 0 : total))
+    }
+  }
+
+  for (const date of dateOrder) {
+    const dayMap = dateMap.get(date)!
+    sheet.addRow([
+      date,
+      ...itemNames.map(name => {
+        const v = dayMap.get(name)
+        return v !== undefined ? v : ''
+      }),
+    ])
+  }
+
+  // Number format for item columns
+  for (let i = 0; i < itemNames.length; i++) {
+    sheet.getColumn(2 + i).numFmt = '#,##0.##'
+  }
+}
+
+// --- Main export ---
 
 export async function buildXlsxBuffer(category: Category, records: LogRecord[]): Promise<ArrayBuffer> {
   const workbook = new ExcelJS.Workbook()
   workbook.creator = 'activity-logger'
   workbook.created = new Date()
 
-  const sheet = workbook.addWorksheet(category.name)
+  for (const field of category.fields) {
+    const sheetName = sanitizeSheetName(field.label)
+    const sheet = workbook.addWorksheet(sheetName)
 
-  const itemListField = category.fields.find(f => f.type === 'item-list')
-  const nonItemListFields = category.fields.filter(f => f.type !== 'item-list')
-
-  if (!itemListField) {
-    // --- Standard mode: one row per record ---
-    const headers = ['日付', ...category.fields.map(f => f.label)]
-    sheet.addRow(headers)
-    applyHeaderStyle(sheet.lastRow!)
-
-    for (const record of records) {
-      const date = getDatePart(record.recorded_at)
-      const cells: (string | number)[] = [
-        date,
-        ...category.fields.map(f => formatValue(record.values[f.key], f)),
-      ]
-      sheet.addRow(cells)
+    if (field.type === 'item-list') {
+      buildItemListSheet(sheet, field, records)
+    } else if (field.type === 'multi-select') {
+      buildMultiSelectSheet(sheet, field, records)
+    } else {
+      buildSimpleSheet(sheet, field, records)
     }
 
-    // Number format for numeric columns
-    category.fields.forEach((f, i) => {
-      if (isNumericField(f)) {
-        const colIndex = i + 2 // 1-based, first col is 日付
-        sheet.getColumn(colIndex).numFmt = '#,##0.##'
-      }
-    })
-  } else {
-    // --- Item-list mode: one row per item ---
-    const subFields = itemListField.subFields ?? []
-    const headers: string[] = [
-      '日付',
-      ...nonItemListFields.map(f => f.label),
-      '種目',
-      ...subFields.map(sf => sf.label),
-    ]
-    if (itemListField.computedTotal && subFields.length >= 2) {
-      headers.push('合計')
-    }
-    sheet.addRow(headers)
-    applyHeaderStyle(sheet.lastRow!)
-
-    const nonItemOffset = 2 + nonItemListFields.length // after 日付 + nonItemList cols
-    const subFieldStartCol = nonItemOffset + 1          // after 種目 col
-
-    for (const record of records) {
-      const date = getDatePart(record.recorded_at)
-      const items = (record.values[itemListField.key] as ItemEntry[] | undefined) ?? []
-      if (!Array.isArray(items) || items.length === 0) continue
-
-      for (const item of items) {
-        const cells: (string | number)[] = [
-          date,
-          ...nonItemListFields.map(f => formatValue(record.values[f.key], f)),
-          item.name ?? '',
-          ...subFields.map(sf => {
-            const v = item[sf.key]
-            return (typeof v === 'number' && !isNaN(v)) ? v : (v == null ? '' : String(v))
-          }),
-        ]
-
-        if (itemListField.computedTotal && subFields.length >= 2) {
-          const total = item.total !== undefined
-            ? item.total
-            : Number(item[subFields[0].key] ?? 0) * Number(item[subFields[1].key] ?? 0)
-          cells.push(typeof total === 'number' && !isNaN(total) ? total : '')
-        }
-
-        sheet.addRow(cells)
-      }
-    }
-
-    // Number format for subfield and total columns
-    subFields.forEach((_, i) => {
-      sheet.getColumn(subFieldStartCol + i).numFmt = '#,##0.##'
-    })
-    if (itemListField.computedTotal && subFields.length >= 2) {
-      sheet.getColumn(subFieldStartCol + subFields.length).numFmt = '#,##0.##'
-    }
-    nonItemListFields.forEach((f, i) => {
-      if (isNumericField(f)) {
-        sheet.getColumn(2 + i).numFmt = '#,##0.##'
-      }
-    })
+    sheet.views = [{ state: 'frozen', ySplit: 1 }]
+    autoFitColumns(sheet)
   }
-
-  // Freeze header row
-  sheet.views = [{ state: 'frozen', ySplit: 1 }]
-
-  autoFitColumns(sheet)
 
   const buffer = await workbook.xlsx.writeBuffer()
   return buffer as ArrayBuffer
