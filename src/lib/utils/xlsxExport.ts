@@ -112,7 +112,7 @@ function buildSimpleSheet(
   }
 
   if (isNumericField(field)) {
-    sheet.getColumn(2).numFmt = '#,##0.##'
+    sheet.getColumn(2).numFmt = '0.0'
   }
 }
 
@@ -181,7 +181,7 @@ function buildItemListSheet(
 
   // Number format for item columns + 日計 column
   for (let i = 0; i < itemNames.length + 1; i++) {
-    sheet.getColumn(2 + i).numFmt = '#,##0.##'
+    sheet.getColumn(2 + i).numFmt = '0.0'
   }
 }
 
